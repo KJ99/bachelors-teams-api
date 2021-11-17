@@ -1,13 +1,8 @@
 app:
-  name: ''
-  description: ''
+  name: 'Teams API'
+  description: Teams api for Konrad Jezierski's bachelors project
 server:
   port: 0
-  ssl:
-    enabled: true
-    key-store-type: ''
-    key-store: ''
-    key-store-password: ''
 http:
   port: 8080
 springdoc:
@@ -29,15 +24,6 @@ spring:
     cache-names: ''
     redis:
       time-to-live: 1h
-  jpa:
-    databasePlatform: ''
-    hibernate:
-      ddl-auto: ''
-  datasource:
-    url: ''
-    username: ''
-    password: ''
-    driver-class-name: ''
 
   mail:
     from: testmail@test.pl
@@ -47,19 +33,7 @@ spring:
           auth: true
           starttls:
             enable: true
-
-file-upload:
-  destination-dir: ''
-  max-size: ''
-  allowed-types: ''
 api:
   host: ''
   errors:
     A.0: Unexpected error has occured
-
-jwt:
-  secret: ''
-google-storage:
-  project-id: ''
-  local-credentials-path: ''
-  bucket-name: ''
