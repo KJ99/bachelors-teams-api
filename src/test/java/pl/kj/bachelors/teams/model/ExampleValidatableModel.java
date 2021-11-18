@@ -1,4 +1,4 @@
-package pl.kj.bachelors.teams.fixture.model;
+package pl.kj.bachelors.teams.model;
 
 import org.hibernate.validator.constraints.Length;
 import pl.kj.bachelors.teams.domain.constraint.FieldValueMatch;

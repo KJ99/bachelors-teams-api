@@ -20,9 +20,6 @@ public class BaseIntegrationTest extends BaseTest {
     protected JwtConfig jwtConfig;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     protected MockMvc mockMvc;
 
     protected String generateValidAccessToken(String uid) {
@@ -48,17 +45,5 @@ public class BaseIntegrationTest extends BaseTest {
         builder.signWith(SignatureAlgorithm.forName(this.jwtConfig.getAlgorithm()), spec);
 
         return builder.compact();
-    }
-
-    protected String serialize(Object model) {
-        String json;
-        try {
-            json = this.objectMapper.writer().writeValueAsString(model);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            json = "";
-        }
-
-        return json;
     }
 }

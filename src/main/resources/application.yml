@@ -36,4 +36,5 @@ spring:
 api:
   host: ''
   errors:
-    A.0: Unexpected error has occured
+    TM.001: Value of this field must not be empty
+    TM.002: Invalid value

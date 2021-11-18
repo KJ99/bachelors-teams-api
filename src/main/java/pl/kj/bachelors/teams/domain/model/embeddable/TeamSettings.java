@@ -9,7 +9,7 @@ import javax.persistence.Enumerated;
 
 @Embeddable
 public class TeamSettings {
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "settings_theme")
     private AppTheme theme = AppTheme.DEFAULT;
 
