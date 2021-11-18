@@ -16,6 +16,7 @@ import pl.kj.bachelors.teams.domain.config.ApiConfig;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.UploadedFile;
+import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 
 import java.util.stream.Collectors;
 
@@ -68,6 +69,28 @@ public class MapperConfig {
                     file.setId(src.getPictureId());
                     return src.getPictureId() != null ? file : null;
                 });
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<Team, TeamUpdateModel>() {
+            @Override
+            protected void configure() {
+                using(ctx -> {
+                    Team src = (Team) ctx.getSource();
+                    return src.getPicture() != null ? src.getPicture().getId() : null;
+                }).map(source, destination.getPictureId());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<TeamUpdateModel, Team>() {
+            @Override
+            protected void configure() {
+                using(ctx -> {
+                    TeamUpdateModel src = (TeamUpdateModel) ctx.getSource();
+                    UploadedFile file = new UploadedFile();
+                    file.setId(src.getPictureId());
+                    return src.getPictureId() != null ? file : null;
+                }).map(source, destination.getPicture());
             }
         });
 
