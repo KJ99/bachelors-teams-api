@@ -1,4 +1,4 @@
-package pl.kj.bachelors.teams.domain.service.update;
+package pl.kj.bachelors.teams.domain.service.crud.update;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;

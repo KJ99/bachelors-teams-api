@@ -1,4 +1,4 @@
-package pl.kj.bachelors.teams.infrastructure.service.update;
+package pl.kj.bachelors.teams.infrastructure.service.crud.update;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
