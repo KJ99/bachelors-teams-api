@@ -23,6 +23,7 @@ file-upload:
 jwt:
   secret: TestarrooSecret
   algorithm: HS256
+  type: Bearer
 api:
   host: 'localhost:8443'
 google-storage:

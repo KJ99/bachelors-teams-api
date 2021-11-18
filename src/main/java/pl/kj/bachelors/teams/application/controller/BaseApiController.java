@@ -21,6 +21,7 @@ import pl.kj.bachelors.teams.domain.service.ModelValidator;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.NoSuchFileException;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -142,5 +143,9 @@ abstract class BaseApiController {
         Matcher matcher = pattern.matcher(message);
 
         return matcher.find();
+    }
+
+    protected Optional<String> getCurrentUserId() {
+        return Optional.ofNullable((String) this.currentRequest.getAttribute("uid"));
     }
 }
