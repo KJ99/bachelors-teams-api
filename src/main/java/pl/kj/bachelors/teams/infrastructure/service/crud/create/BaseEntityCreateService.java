@@ -3,6 +3,7 @@ package pl.kj.bachelors.teams.infrastructure.service.crud.create;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.service.ModelValidator;
 
@@ -17,16 +18,17 @@ public abstract class BaseEntityCreateService<E, PK, R extends JpaRepository<E, 
         this.validator = validator;
     }
 
-    @Transactional
-    public E create(C model, Class<E> entityClass) throws AggregatedApiError {
+    @Transactional(rollbackFor = { AccessDeniedException.class, AggregatedApiError.class })
+    public E create(C model, Class<E> entityClass) throws Exception {
         this.ensureThatModelIsValid(model);
         E entity = this.modelMapper.map(model, entityClass);
-        this.postCreate(entity);
         this.repository.save(entity);
+        this.postCreate(entity);
+
         return entity;
     }
 
-    protected void postCreate(E entity) {}
+    protected void postCreate(E entity) throws AccessDeniedException, Exception {}
 
     protected void ensureThatModelIsValid(C model) throws AggregatedApiError {
         var violations = this.validator.validateModel(model);

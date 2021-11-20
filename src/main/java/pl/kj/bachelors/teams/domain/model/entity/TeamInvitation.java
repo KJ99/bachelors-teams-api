@@ -20,6 +20,7 @@ public class TeamInvitation {
     private String code;
     @Column(name = "expires_at")
     private Calendar expiresAt;
+    @Embedded
     private Audit audit;
 
     public TeamInvitation() {

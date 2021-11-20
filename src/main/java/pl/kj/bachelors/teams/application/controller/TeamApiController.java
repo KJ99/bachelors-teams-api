@@ -79,7 +79,7 @@ public class TeamApiController extends BaseApiController {
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
     })
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<TeamResponse> post(@RequestBody TeamCreateModel model) throws AggregatedApiError {
+    public ResponseEntity<TeamResponse> post(@RequestBody TeamCreateModel model) throws Exception {
         Team resultEntity = this.createService.create(model, Team.class);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.map(resultEntity, TeamResponse.class));
