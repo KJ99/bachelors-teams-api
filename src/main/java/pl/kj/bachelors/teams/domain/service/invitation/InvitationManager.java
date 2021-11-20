@@ -8,5 +8,5 @@ import java.util.concurrent.ExecutionException;
 
 public interface InvitationManager {
     TeamInvitation open(int teamId) throws ResourceNotFoundException, ExecutionException, InterruptedException;
-    void close(String code);
+    void close(String code) throws ResourceNotFoundException;
 }

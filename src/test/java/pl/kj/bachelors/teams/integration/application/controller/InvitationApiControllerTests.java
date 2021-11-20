@@ -11,6 +11,7 @@ import pl.kj.bachelors.teams.integration.BaseIntegrationTest;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,6 +62,33 @@ public class InvitationApiControllerTests extends BaseIntegrationTest {
                 post("/v1/invitations")
                         .contentType("application/json")
                         .content(requestBody.getBytes(StandardCharsets.UTF_8))
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testCloseInvitation_NoContent() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                delete("/v1/invitations/0123456")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testCloseInvitation_NotFound() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                delete("/v1/invitations/-1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testCloseInvitation_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                delete("/v1/invitations/0123456")
         ).andExpect(status().isUnauthorized());
     }
 }

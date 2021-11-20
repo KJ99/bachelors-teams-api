@@ -36,8 +36,15 @@ public class InvitationApiController extends BaseApiController {
                 .body(this.map(invitation, InvitationCreateResponse.class));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{code}")
     private ResponseEntity<InvitationResponse> getInvitation(@PathVariable String code) {
         throw new NotImplementedException();
+    }
+
+    @DeleteMapping("/{code}")
+    private ResponseEntity<?> closeInvitation(@PathVariable String code) throws ResourceNotFoundException {
+        this.manager.close(code);
+
+        return ResponseEntity.noContent().build();
     }
 }

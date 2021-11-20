@@ -44,8 +44,13 @@ public class InvitationManagementService implements InvitationManager {
     }
 
     @Override
-    public void close(String code) {
-        throw new NotImplementedException();
+    @Transactional(rollbackFor = ResourceNotFoundException.class)
+    public void close(String code) throws ResourceNotFoundException {
+        TeamInvitation invitation = this.invitationRepository
+                .findFirstByCode(code)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        invitationRepository.delete(invitation);
     }
 
     private TeamInvitation createInvitation(Team team) throws ExecutionException, InterruptedException {
