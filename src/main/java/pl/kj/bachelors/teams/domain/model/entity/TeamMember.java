@@ -3,6 +3,7 @@ package pl.kj.bachelors.teams.domain.model.entity;
 import pl.kj.bachelors.teams.domain.model.embeddable.Audit;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -29,6 +30,7 @@ public class TeamMember {
 
     public TeamMember() {
         this.audit = new Audit();
+        this.roles = new HashSet<>();
     }
 
     public int getId() {

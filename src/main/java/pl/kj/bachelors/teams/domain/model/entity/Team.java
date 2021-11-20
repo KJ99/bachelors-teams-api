@@ -6,6 +6,7 @@ import pl.kj.bachelors.teams.domain.model.embeddable.Audit;
 import pl.kj.bachelors.teams.domain.model.embeddable.TeamSettings;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "teams")
@@ -25,6 +26,9 @@ public class Team {
 
     @Embedded
     private TeamSettings settings;
+
+    @OneToMany(mappedBy = "team")
+    private Set<TeamMember> members;
 
     public Team() {
         this.audit = new Audit();
@@ -69,5 +73,9 @@ public class Team {
 
     public void setSettings(TeamSettings settings) {
         this.settings = settings;
+    }
+
+    public Set<TeamMember> getMembers() {
+        return members;
     }
 }

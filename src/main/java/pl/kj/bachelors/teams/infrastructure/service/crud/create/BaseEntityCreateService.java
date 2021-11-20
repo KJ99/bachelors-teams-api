@@ -21,6 +21,7 @@ public abstract class BaseEntityCreateService<E, PK, R extends JpaRepository<E, 
     @Transactional(rollbackFor = { AccessDeniedException.class, AggregatedApiError.class })
     public E create(C model, Class<E> entityClass) throws Exception {
         this.ensureThatModelIsValid(model);
+        this.preCreate(model);
         E entity = this.modelMapper.map(model, entityClass);
         this.repository.save(entity);
         this.postCreate(entity);
@@ -28,7 +29,8 @@ public abstract class BaseEntityCreateService<E, PK, R extends JpaRepository<E, 
         return entity;
     }
 
-    protected void postCreate(E entity) throws AccessDeniedException, Exception {}
+    protected void postCreate(E entity) throws Exception {}
+    protected void preCreate(C model) throws Exception {}
 
     protected void ensureThatModelIsValid(C model) throws AggregatedApiError {
         var violations = this.validator.validateModel(model);

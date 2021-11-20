@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.exception.ApiError;
@@ -35,37 +36,33 @@ public class TeamCreateServiceTests extends BaseTest {
     }
 
     @Test
-    public void testCreate_Correct() {
+    @Transactional
+    public void testCreate_Correct() throws Exception {
         TeamCreateModel model = new TeamCreateModel();
         model.setName("Some team");
         model.setName("DEFAULT");
         model.setPictureId(1);
 
-        Throwable thrown = catchThrowable(() -> {
-            Team team = this.service.create(model, Team.class);
-            assertThat(team.getId()).isPositive();
-            assertThat(team.getName()).isEqualTo(model.getName());
-            assertThat(team.getPicture()).isNotNull();
-            assertThat(team.getPicture().getId()).isEqualTo(model.getPictureId());
+        Team team = this.service.create(model, Team.class);
+        assertThat(team.getId()).isPositive();
+        assertThat(team.getName()).isEqualTo(model.getName());
+        assertThat(team.getPicture()).isNotNull();
+        assertThat(team.getPicture().getId()).isEqualTo(model.getPictureId());
 
-            Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, uid);
-            assertThat(member).isPresent();
-        });
-        assertThat(thrown).isNull();
+        Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, uid);
+        assertThat(member).isPresent();
+        assertThat(member.get().getRoles()).hasSize(2);
     }
 
     @Test
-    public void testCreate_Correct_WithoutPicture() {
+    public void testCreate_Correct_WithoutPicture() throws Exception {
         TeamCreateModel model = new TeamCreateModel();
         model.setName("Some team");
 
-        Throwable thrown = catchThrowable(() -> {
-            Team team = this.service.create(model, Team.class);
-            assertThat(team.getId()).isPositive();
-            assertThat(team.getName()).isEqualTo(model.getName());
-            assertThat(team.getPicture()).isNull();
-        });
-        assertThat(thrown).isNull();
+        Team team = this.service.create(model, Team.class);
+        assertThat(team.getId()).isPositive();
+        assertThat(team.getName()).isEqualTo(model.getName());
+        assertThat(team.getPicture()).isNull();
     }
 
     @Test

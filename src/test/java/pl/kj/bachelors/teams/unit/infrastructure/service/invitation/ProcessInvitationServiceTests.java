@@ -2,9 +2,11 @@ package pl.kj.bachelors.teams.unit.infrastructure.service.invitation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
+import pl.kj.bachelors.teams.domain.model.Role;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
@@ -53,18 +55,16 @@ public class ProcessInvitationServiceTests extends BaseTest {
     }
 
     @Test
-    public void testJoinTeam() {
+    @Transactional
+    public void testJoinTeam() throws Exception, ResourceNotFoundException {
         final Team team = this.teamRepository.findById(1).orElseThrow();
         final String uid = "uid-1";
         final String token = "valid-token-1";
 
-        Throwable thrown = catchThrowable(() -> {
-            this.service.joinTeam(uid, token);
-            Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, uid);
-            assertThat(member).isPresent();
-        });
-
-        assertThat(thrown).isNull();
+        this.service.joinTeam(uid, token);
+        Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, uid);
+        assertThat(member).isPresent();
+        assertThat(member.get().getRoles().stream().anyMatch(role -> role.getCode().equals(Role.TEAM_MEMBER))).isTrue();
     }
 
     @Test

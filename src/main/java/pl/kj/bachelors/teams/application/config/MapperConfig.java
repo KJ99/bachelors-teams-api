@@ -16,11 +16,17 @@ import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
+import pl.kj.bachelors.teams.domain.model.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
+import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
+import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.domain.model.entity.UploadedFile;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -138,6 +144,24 @@ public class MapperConfig {
 
                     return mappedPage.getContent();
                 }).map(source, destination.getData());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<TeamMemberCreateModel, TeamMember>() {
+            @Override
+            protected void configure() {
+                skip(destination.getId());
+                using(ctx -> {
+                    TeamMemberCreateModel src = (TeamMemberCreateModel) ctx.getSource();
+                    Set<TeamRole> result = new HashSet<>();
+                    for(Role code : src.getRoles()) {
+                        TeamRole role = new TeamRole();
+                        role.setCode(code);
+                        result.add(role);
+                    }
+
+                    return result;
+                }).map(source, destination.getRoles());
             }
         });
 

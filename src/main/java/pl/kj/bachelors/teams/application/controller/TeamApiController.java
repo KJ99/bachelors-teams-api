@@ -159,7 +159,7 @@ public class TeamApiController extends BaseApiController {
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinTeamRequest request)
-            throws CredentialsNotFoundException, AccessDeniedException, ResourceNotFoundException {
+            throws CredentialsNotFoundException, Exception, ResourceNotFoundException {
         String uid = this.getCurrentUserId().orElseThrow(CredentialsNotFoundException::new);
         this.invitationProcessor.joinTeam(uid, request.getInviteToken());
 

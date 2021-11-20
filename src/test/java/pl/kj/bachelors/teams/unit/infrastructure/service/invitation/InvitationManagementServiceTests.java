@@ -10,6 +10,7 @@ import pl.kj.bachelors.teams.infrastructure.service.invitation.InvitationManagem
 
 import java.util.Calendar;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -21,21 +22,17 @@ public class InvitationManagementServiceTests extends BaseTest {
     private TeamInvitationRepository invitationRepository;
 
     @Test
-    public void testOpen() {
+    public void testOpen() throws ResourceNotFoundException, ExecutionException, InterruptedException {
         final int teamId = 1;
 
-        Throwable thrown = catchThrowable(() -> {
-            TeamInvitation invitation = service.open(teamId);
+        TeamInvitation invitation = service.open(teamId);
 
-            assertThat(invitation).isNotNull();
-            assertThat(invitation.getCode()).isNotEmpty();
-            assertThat(invitation.getToken()).isNotEmpty();
-            assertThat(invitation.getExpiresAt()).isGreaterThan(Calendar.getInstance());
-            assertThat(invitation.getTeam()).isNotNull();
-            assertThat(invitation.getTeam().getId()).isEqualTo(teamId);
-        });
-
-        assertThat(thrown).isNull();
+        assertThat(invitation).isNotNull();
+        assertThat(invitation.getCode()).isNotEmpty();
+        assertThat(invitation.getToken()).isNotEmpty();
+        assertThat(invitation.getExpiresAt()).isGreaterThan(Calendar.getInstance());
+        assertThat(invitation.getTeam()).isNotNull();
+        assertThat(invitation.getTeam().getId()).isEqualTo(teamId);
     }
 
     @Test
@@ -48,18 +45,14 @@ public class InvitationManagementServiceTests extends BaseTest {
     }
 
     @Test
-    public void testClose() {
+    public void testClose() throws ResourceNotFoundException {
         final String code = "0123456";
 
-        Throwable thrown = catchThrowable(() -> {
-            service.close(code);
+        service.close(code);
 
-            Optional<TeamInvitation> invitation = invitationRepository.findFirstByCode(code);
+        Optional<TeamInvitation> invitation = invitationRepository.findFirstByCode(code);
 
-            assertThat(invitation).isNotPresent();
-        });
-
-        assertThat(thrown).isNull();
+        assertThat(invitation).isNotPresent();
     }
 
     @Test

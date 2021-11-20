@@ -4,15 +4,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
-import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
+import pl.kj.bachelors.teams.domain.model.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
+import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.service.ModelValidator;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
+import pl.kj.bachelors.teams.domain.service.crud.create.TeamMemberCreateService;
 import pl.kj.bachelors.teams.domain.service.user.UserProvider;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class TeamCreateServiceImpl
@@ -20,7 +25,7 @@ public class TeamCreateServiceImpl
         implements TeamCreateService {
 
     private final UserProvider userProvider;
-    private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberCreateService teamMemberCreateService;
 
     @Autowired
     public TeamCreateServiceImpl(
@@ -28,20 +33,23 @@ public class TeamCreateServiceImpl
             TeamRepository repository,
             ModelValidator validator,
             UserProvider userProvider,
-            TeamMemberRepository teamMemberRepository
-    ) {
+            TeamMemberCreateService teamMemberCreateService) {
         super(modelMapper, repository, validator);
         this.userProvider = userProvider;
-        this.teamMemberRepository = teamMemberRepository;
+        this.teamMemberCreateService = teamMemberCreateService;
     }
 
     @Override
     protected void postCreate(Team team) throws Exception {
         String uid = this.userProvider.getCurrentUserId().orElseThrow(AccessDeniedException::new);
-        TeamMember member = new TeamMember();
-        member.setTeam(team);
-        member.setUserId(uid);
+        Set<Role> memberRoles = new HashSet<>();
+        memberRoles.add(Role.OWNER);
 
-        this.teamMemberRepository.save(member);
+        TeamMemberCreateModel memberCreateModel = new TeamMemberCreateModel();
+        memberCreateModel.setTeamId(team.getId());
+        memberCreateModel.setUserId(uid);
+        memberCreateModel.setRoles(memberRoles);
+
+        this.teamMemberCreateService.create(memberCreateModel, TeamMember.class);
     }
 }
