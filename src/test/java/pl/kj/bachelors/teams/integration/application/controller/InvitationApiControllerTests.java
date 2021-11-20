@@ -6,13 +6,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.kj.bachelors.teams.application.dto.request.InvitationCreateRequest;
 import pl.kj.bachelors.teams.application.dto.response.invitation.InvitationCreateResponse;
+import pl.kj.bachelors.teams.application.dto.response.invitation.InvitationResponse;
 import pl.kj.bachelors.teams.integration.BaseIntegrationTest;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class InvitationApiControllerTests extends BaseIntegrationTest {
@@ -89,6 +89,52 @@ public class InvitationApiControllerTests extends BaseIntegrationTest {
     public void testCloseInvitation_Unauthorized() throws Exception {
         this.mockMvc.perform(
                 delete("/v1/invitations/0123456")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetInvitation_Ok() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        MvcResult mvcResult = this.mockMvc.perform(
+                get("/v1/invitations/0123456")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isOk()).andReturn();
+
+        String responseContent = mvcResult.getResponse().getContentAsString();
+        InvitationResponse result = this.deserialize(responseContent, InvitationResponse.class);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getToken()).isNotEmpty();
+        assertThat(result.getTeam()).isNotNull();
+        assertThat(result.getTeam().getId()).isPositive();
+        assertThat(result.getTeam().getName()).isNotEmpty();
+    }
+
+    @Test
+    public void testGetInvitation_NotFound() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                get("/v1/invitations/-1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetInvitation_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                get("/v1/invitations/07821")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetInvitation_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                get("/v1/invitations/0123456")
         ).andExpect(status().isUnauthorized());
     }
 }

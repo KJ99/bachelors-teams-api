@@ -9,9 +9,11 @@ import pl.kj.bachelors.teams.application.dto.request.InvitationCreateRequest;
 import pl.kj.bachelors.teams.application.dto.response.invitation.InvitationCreateResponse;
 import pl.kj.bachelors.teams.application.dto.response.invitation.InvitationResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
+import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationManager;
+import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
 
 import java.util.concurrent.ExecutionException;
 
@@ -20,10 +22,12 @@ import java.util.concurrent.ExecutionException;
 @Authentication
 public class InvitationApiController extends BaseApiController {
     private final InvitationManager manager;
+    private final InvitationProcessor processor;
 
     @Autowired
-    public InvitationApiController(InvitationManager manager) {
+    public InvitationApiController(InvitationManager manager, InvitationProcessor processor) {
         this.manager = manager;
+        this.processor = processor;
     }
 
     @PostMapping
@@ -37,8 +41,11 @@ public class InvitationApiController extends BaseApiController {
     }
 
     @GetMapping("/{code}")
-    private ResponseEntity<InvitationResponse> getInvitation(@PathVariable String code) {
-        throw new NotImplementedException();
+    private ResponseEntity<InvitationResponse> getInvitation(@PathVariable String code)
+            throws AccessDeniedException, ResourceNotFoundException {
+        TeamInvitation invitation = this.processor.unwrap(code);
+
+        return ResponseEntity.ok(this.map(invitation, InvitationResponse.class));
     }
 
     @DeleteMapping("/{code}")
