@@ -24,6 +24,13 @@ jwt:
   secret: TestarrooSecret
   algorithm: HS256
   type: Bearer
+team-invitation:
+  code-length: 12
+  valid-time-in-minutes: 5000
+  token:
+    prefix: 'INVI-'
+    suffix: '-TATION'
+    content-length: 5
 api:
   host: 'localhost:8443'
 google-storage:

@@ -37,4 +37,15 @@ public class BaseTest {
 
         return json;
     }
+
+    protected <T> T deserialize(String value, Class<T> destinationClass) {
+        T result;
+        try {
+            result = this.objectMapper.readValue(value, destinationClass);
+        } catch (JsonProcessingException e) {
+            result = null;
+        }
+
+        return result;
+    }
 }
