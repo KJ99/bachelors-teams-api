@@ -19,13 +19,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.kj.bachelors.teams.application.dto.request.JoinTeamRequest;
 import pl.kj.bachelors.teams.application.dto.request.PagingQuery;
 import pl.kj.bachelors.teams.application.dto.response.error.ValidationErrorResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
 import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
+import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
+import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
@@ -33,6 +36,7 @@ import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamUpdateService;
+import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
 import java.util.Map;
@@ -46,17 +50,21 @@ public class TeamApiController extends BaseApiController {
     private final TeamUpdateService updateService;
     private final TeamRepository teamRepository;
     private final TeamReadService teamReadService;
+    private final InvitationProcessor invitationProcessor;
 
     @Autowired
     public TeamApiController(
             TeamCreateService createService,
             TeamRepository teamRepository,
             TeamUpdateService updateService,
-            TeamReadService teamReadService) {
+            TeamReadService teamReadService,
+            InvitationProcessor invitationProcessor
+    ) {
         this.createService = createService;
         this.teamRepository = teamRepository;
         this.updateService = updateService;
         this.teamReadService = teamReadService;
+        this.invitationProcessor = invitationProcessor;
     }
 
     @PostMapping
@@ -147,5 +155,14 @@ public class TeamApiController extends BaseApiController {
         Team team = this.teamReadService.readParticular(id).orElseThrow(ResourceNotFoundException::new);
 
         return ResponseEntity.ok(this.map(team, TeamResponse.class));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<?> join(@RequestBody JoinTeamRequest request)
+            throws CredentialsNotFoundException, AccessDeniedException, ResourceNotFoundException {
+        String uid = this.getCurrentUserId().orElseThrow(CredentialsNotFoundException::new);
+        this.invitationProcessor.joinTeam(uid, request.getInviteToken());
+
+        return ResponseEntity.noContent().build();
     }
 }

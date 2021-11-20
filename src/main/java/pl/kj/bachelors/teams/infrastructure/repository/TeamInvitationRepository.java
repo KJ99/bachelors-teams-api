@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface TeamInvitationRepository extends JpaRepository<TeamInvitation, Integer> {
     Optional<TeamInvitation> findFirstByCode(String code);
+    Optional<TeamInvitation> findFirstByToken(String token);
 }

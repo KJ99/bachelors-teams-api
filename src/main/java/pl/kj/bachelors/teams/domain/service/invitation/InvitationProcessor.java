@@ -6,5 +6,5 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 
 public interface InvitationProcessor {
     TeamInvitation unwrap(String code) throws ResourceNotFoundException, AccessDeniedException;
-    void joinTeam(String uid, String invitationToken);
+    void joinTeam(String uid, String invitationToken) throws ResourceNotFoundException, AccessDeniedException;
 }

@@ -2,6 +2,7 @@ package pl.kj.bachelors.teams.integration.application.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
+import pl.kj.bachelors.teams.application.dto.request.JoinTeamRequest;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.integration.BaseIntegrationTest;
 import pl.kj.bachelors.teams.model.PatchOperation;
@@ -216,6 +217,64 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                 get("/v1/teams/-1")
                         .header("Authorization", auth)
         ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testJoin_NoContent() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        JoinTeamRequest request = new JoinTeamRequest();
+        request.setInviteToken("valid-token-1");
+        String requestBody = this.serialize(request);
+
+        this.mockMvc.perform(
+                post("/v1/teams/join")
+                        .contentType("application/json")
+                        .content(requestBody)
+                        .header("Authorization", auth)
+        ).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testJoin_NotFound() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        JoinTeamRequest request = new JoinTeamRequest();
+        request.setInviteToken("fake-token");
+        String requestBody = this.serialize(request);
+
+        this.mockMvc.perform(
+                post("/v1/teams/join")
+                        .contentType("application/json")
+                        .content(requestBody)
+                        .header("Authorization", auth)
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testJoin_AccessDenied() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        JoinTeamRequest request = new JoinTeamRequest();
+        request.setInviteToken("expired-token-1");
+        String requestBody = this.serialize(request);
+
+        this.mockMvc.perform(
+                post("/v1/teams/join")
+                        .contentType("application/json")
+                        .content(requestBody)
+                        .header("Authorization", auth)
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testJoin_Unauthorized() throws Exception {
+        JoinTeamRequest request = new JoinTeamRequest();
+        request.setInviteToken("valid-token-1");
+        String requestBody = this.serialize(request);
+
+        this.mockMvc.perform(
+                post("/v1/teams/join")
+                        .contentType("application/json")
+                        .content(requestBody)
+        ).andExpect(status().isUnauthorized());
     }
 
     private TeamCreateModel getCorrectCreateModel() {
