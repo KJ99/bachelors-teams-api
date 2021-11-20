@@ -68,7 +68,7 @@ public class TokenGenerationService {
 
         for(int[] bound : bounds) {
             for(int code = bound[0]; code <= bound[1]; code++) {
-                characters.add(Character.forDigit(code, 16));
+                characters.add((char) code);
             }
         }
 
