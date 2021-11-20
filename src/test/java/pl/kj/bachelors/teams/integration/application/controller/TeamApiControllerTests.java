@@ -10,8 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class TeamApiControllerTests extends BaseIntegrationTest {
@@ -149,6 +148,72 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                 patch("/v1/teams/-1")
                         .contentType("application/json")
                         .content(requestBody.getBytes(StandardCharsets.UTF_8))
+                        .header("Authorization", auth)
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGet_Ok() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                get("/v1/teams")
+                        .header("Authorization", auth)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGet_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                get("/v1/teams")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGet_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                get("/v1/teams")
+                        .header("Authorization", auth)
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetParticular_Ok() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        MvcResult result = this.mockMvc.perform(
+                get("/v1/teams/1")
+                        .header("Authorization", auth)
+        ).andExpect(status().isOk()).andReturn();
+
+        assertThat(result.getResponse().getContentAsString())
+                .contains("name")
+                .contains("theme");
+    }
+
+    @Test
+    public void testGetParticular_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                get("/v1/teams/1")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testGetParticular_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                get("/v1/teams/1")
+                        .header("Authorization", auth)
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testGetParticular_NotFound() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+
+        this.mockMvc.perform(
+                get("/v1/teams/-1")
                         .header("Authorization", auth)
         ).andExpect(status().isNotFound());
     }

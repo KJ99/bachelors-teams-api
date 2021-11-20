@@ -5,10 +5,13 @@ import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.kj.bachelors.teams.application.dto.response.UploadedFileResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.HealthCheckResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.SingleCheckResponse;
+import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
+import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
@@ -85,6 +88,7 @@ public class MapperConfig {
         mapper.addMappings(new PropertyMap<TeamUpdateModel, Team>() {
             @Override
             protected void configure() {
+                skip(destination.getId());
                 using(ctx -> {
                     TeamUpdateModel src = (TeamUpdateModel) ctx.getSource();
                     UploadedFile file = new UploadedFile();
@@ -111,6 +115,29 @@ public class MapperConfig {
                             .toUriString()
                             : null;
                 }).map(source, destination.getPictureUrl());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<Page<?>, PageMetadata>() {
+            @Override
+            protected void configure() {
+                map().setPage(source.getNumber());
+                map().setPageSize((int) source.getTotalElements());
+                map().setTotalPages(source.getTotalPages());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<Page<Team>, PageResponse<TeamResponse>>() {
+            @Override
+            protected void configure() {
+                using(ctx -> mapper.map(ctx.getSource(), PageMetadata.class)).map(source, destination.getMetadata());
+                using(ctx -> {
+                    @SuppressWarnings("unchecked")
+                    Page<Team> src = (Page<Team>) ctx.getSource();
+                    Page<TeamResponse> mappedPage = src.map(item -> mapper.map(item, TeamResponse.class));
+
+                    return mappedPage.getContent();
+                }).map(source, destination.getData());
             }
         });
 

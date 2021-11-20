@@ -1,5 +1,6 @@
 package pl.kj.bachelors.teams.domain.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Fetch;
 import pl.kj.bachelors.teams.domain.model.embeddable.Audit;
 import pl.kj.bachelors.teams.domain.model.embeddable.TeamSettings;
@@ -15,7 +16,7 @@ public class Team {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "picture_id", referencedColumnName = "id")
     private UploadedFile picture;
 

@@ -4,4 +4,6 @@ insert into uploaded_files (id, file_name, original_file_name, media_type) value
     (3, 'filename.jpg', 'or-filename.jpg', 'image/jpg');
 
 insert into teams (id, name, picture_id, settings_theme) values
-    (1, 'team-1', 1, 'DEFAULT');
+    (1, 'team-1', 1, 'DEFAULT'),
+    (2, 'team-2', 2, 'DEFAULT'),
+    (3, 'team-3', 3, 'DEFAULT');
