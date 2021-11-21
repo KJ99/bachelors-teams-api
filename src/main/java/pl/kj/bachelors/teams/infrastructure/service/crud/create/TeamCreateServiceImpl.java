@@ -12,9 +12,8 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.service.ModelValidator;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamMemberCreateService;
-import pl.kj.bachelors.teams.domain.service.user.UserProvider;
-import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
+import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +23,6 @@ public class TeamCreateServiceImpl
         extends BaseEntityCreateService<Team, Integer, TeamRepository, TeamCreateModel>
         implements TeamCreateService {
 
-    private final UserProvider userProvider;
     private final TeamMemberCreateService teamMemberCreateService;
 
     @Autowired
@@ -32,16 +30,14 @@ public class TeamCreateServiceImpl
             ModelMapper modelMapper,
             TeamRepository repository,
             ModelValidator validator,
-            UserProvider userProvider,
             TeamMemberCreateService teamMemberCreateService) {
         super(modelMapper, repository, validator);
-        this.userProvider = userProvider;
         this.teamMemberCreateService = teamMemberCreateService;
     }
 
     @Override
     protected void postCreate(Team team) throws Exception {
-        String uid = this.userProvider.getCurrentUserId().orElseThrow(AccessDeniedException::new);
+        String uid = UserHandler.getCurrentUserId().orElseThrow(AccessDeniedException::new);
         Set<Role> memberRoles = new HashSet<>();
         memberRoles.add(Role.OWNER);
 

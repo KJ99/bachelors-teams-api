@@ -1,11 +1,14 @@
 package pl.kj.bachelors.teams.application.config;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.kj.bachelors.teams.application.dto.response.UploadedFileResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.HealthCheckResponse;
@@ -13,6 +16,7 @@ import pl.kj.bachelors.teams.application.dto.response.health.SingleCheckResponse
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
 import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
+import pl.kj.bachelors.teams.application.dto.response.team.TeamSettingsResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
@@ -23,9 +27,11 @@ import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.domain.model.entity.UploadedFile;
+import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,26 +130,23 @@ public class MapperConfig {
             }
         });
 
+        mapper.addConverter((Converter<TeamWithParticipationResult, TeamResponse>) ctx -> {
+            TeamWithParticipationResult src = ctx.getSource();
+            TeamResponse dest = new TeamResponse();
+            mapper.map(src.getTeam(), dest);
+            dest.setRoles(src.getMember().getRoles().stream()
+                    .map(TeamRole::getName)
+                    .collect(Collectors.toList()));
+
+            return dest;
+        });
+
         mapper.addMappings(new PropertyMap<Page<?>, PageMetadata>() {
             @Override
             protected void configure() {
                 map().setPage(source.getNumber());
                 map().setPageSize((int) source.getTotalElements());
                 map().setTotalPages(source.getTotalPages());
-            }
-        });
-
-        mapper.addMappings(new PropertyMap<Page<Team>, PageResponse<TeamResponse>>() {
-            @Override
-            protected void configure() {
-                using(ctx -> mapper.map(ctx.getSource(), PageMetadata.class)).map(source, destination.getMetadata());
-                using(ctx -> {
-                    @SuppressWarnings("unchecked")
-                    Page<Team> src = (Page<Team>) ctx.getSource();
-                    Page<TeamResponse> mappedPage = src.map(item -> mapper.map(item, TeamResponse.class));
-
-                    return mappedPage.getContent();
-                }).map(source, destination.getData());
             }
         });
 

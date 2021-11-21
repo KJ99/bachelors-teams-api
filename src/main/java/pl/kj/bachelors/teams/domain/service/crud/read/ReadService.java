@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
-public interface ReadService<T, PK> {
-    Page<T> readPaged(Pageable query);
-    Optional<T> readParticular(PK identity);
+public interface ReadService<T, PK, V> {
+    Page<V> readPaged(Pageable query);
+    Optional<V> readParticular(PK identity);
 }

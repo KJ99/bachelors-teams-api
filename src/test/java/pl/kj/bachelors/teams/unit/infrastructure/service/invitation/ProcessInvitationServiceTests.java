@@ -1,6 +1,10 @@
 package pl.kj.bachelors.teams.unit.infrastructure.service.invitation;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
@@ -13,11 +17,13 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 import pl.kj.bachelors.teams.infrastructure.service.invitation.ProcessInvitationService;
+import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.mockito.Mockito.when;
 
 public class ProcessInvitationServiceTests extends BaseTest {
     @Autowired
@@ -28,6 +34,21 @@ public class ProcessInvitationServiceTests extends BaseTest {
 
     @Autowired
     private TeamRepository teamRepository;
+
+    MockedStatic<UserHandler> userHandlerMock;
+
+    @BeforeEach
+    public void setUp()
+    {
+        this.userHandlerMock = Mockito.mockStatic(UserHandler.class);
+
+        when(UserHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
+    }
+
+    @AfterEach
+    public void tearDown() {
+        this.userHandlerMock.close();
+    }
 
     @Test
     public void testUnwrap() {
@@ -58,7 +79,7 @@ public class ProcessInvitationServiceTests extends BaseTest {
     @Transactional
     public void testJoinTeam() throws Exception, ResourceNotFoundException {
         final Team team = this.teamRepository.findById(1).orElseThrow();
-        final String uid = "uid-1";
+        final String uid = "uid-2";
         final String token = "valid-token-1";
 
         this.service.joinTeam(uid, token);

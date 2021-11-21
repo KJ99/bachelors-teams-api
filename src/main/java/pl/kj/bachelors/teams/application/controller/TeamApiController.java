@@ -32,6 +32,7 @@ import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
+import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
@@ -131,7 +132,7 @@ public class TeamApiController extends BaseApiController {
     public ResponseEntity<?> get(@RequestParam Map<String, String> params) {
         PagingQuery query = this.parseQueryParams(params, PagingQuery.class);
         Pageable pageable = PageRequest.of(query.getPage(), query.getPageSize());
-        Page<Team> page = this.teamReadService.readPaged(pageable);
+        Page<TeamWithParticipationResult> page = this.teamReadService.readPaged(pageable);
         PageResponse<TeamResponse> response = new PageResponse<>();
         response.setMetadata(this.map(page, PageMetadata.class));
         response.setData(this.mapCollection(page.getContent(), TeamResponse.class));
@@ -152,7 +153,9 @@ public class TeamApiController extends BaseApiController {
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<TeamResponse> getParticular(@PathVariable int id)
             throws ResourceNotFoundException {
-        Team team = this.teamReadService.readParticular(id).orElseThrow(ResourceNotFoundException::new);
+        TeamWithParticipationResult team = this.teamReadService
+                .readParticular(id)
+                .orElseThrow(ResourceNotFoundException::new);
 
         return ResponseEntity.ok(this.map(team, TeamResponse.class));
     }
