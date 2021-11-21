@@ -10,6 +10,8 @@ import pl.kj.bachelors.teams.application.dto.response.member.MemberRoleResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
+import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
 import java.util.Collection;
@@ -17,12 +19,14 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/v1/teams/{teamId}/roles")
 @Authentication
-public class TeamRolesApiController extends BaseApiController {
+public class RolesApiController extends BaseApiController {
     private final TeamRepository teamRepository;
+    private final TeamMemberRepository memberRepository;
 
     @Autowired
-    public TeamRolesApiController(TeamRepository teamRepository) {
+    public RolesApiController(TeamRepository teamRepository, TeamMemberRepository memberRepository) {
         this.teamRepository = teamRepository;
+        this.memberRepository = memberRepository;
     }
 
 
@@ -31,5 +35,17 @@ public class TeamRolesApiController extends BaseApiController {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
 
         return ResponseEntity.ok(this.mapCollection(team.getMembers(), MemberRoleResponse.class));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<MemberRoleResponse> getForUser(
+            @PathVariable Integer teamId,
+            @PathVariable String userId
+    ) throws ResourceNotFoundException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        TeamMember member = this.memberRepository
+                .findFirstByTeamAndUserId(team, userId)
+                .orElseThrow(ResourceNotFoundException::new);
+        return ResponseEntity.ok(this.map(member, MemberRoleResponse.class));
     }
 }
