@@ -3,20 +3,18 @@ package pl.kj.bachelors.teams.application.config;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.kj.bachelors.teams.application.dto.response.UploadedFileResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.HealthCheckResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.SingleCheckResponse;
+import pl.kj.bachelors.teams.application.dto.response.member.TeamRoleResponse;
+import pl.kj.bachelors.teams.application.dto.response.member.TeamMemberResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
-import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
-import pl.kj.bachelors.teams.application.dto.response.team.TeamSettingsResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
@@ -31,7 +29,6 @@ import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,6 +136,19 @@ public class MapperConfig {
                     .collect(Collectors.toList()));
 
             return dest;
+        });
+
+        mapper.addMappings(new PropertyMap<TeamMember, TeamMemberResponse>() {
+            @Override
+            protected void configure() {
+                map().setUid(source.getUserId());
+                using(ctx -> ((TeamMember) ctx.getSource())
+                            .getRoles()
+                            .stream()
+                            .map(role -> mapper.map(role, TeamRoleResponse.class))
+                            .collect(Collectors.toList()))
+                .map(source, destination.getRoles());
+            }
         });
 
         mapper.addMappings(new PropertyMap<Page<?>, PageMetadata>() {

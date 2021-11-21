@@ -17,7 +17,7 @@ public class TeamMember {
     @ManyToOne
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "team_member_roles",
             joinColumns = @JoinColumn(name = "team_member_id"),
