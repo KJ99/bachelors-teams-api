@@ -14,7 +14,9 @@ insert into team_invitations (id, token, code, team_id, expires_at) values
     (3, 'expired-token-1', '07821', 1, '1000-01-01 23:59:59');
 
  insert into team_members (id, user_id, team_id) values
-    (1, 'uid-1', 1);
+    (1, 'uid-1', 1),
+    (2, 'uid-11', 1);
 
  insert into team_member_roles (team_member_id, role_id) values
-    (1, 'OWNER');
+    (1, 'OWNER'),
+    (2, 'TEAM_MEMBER');

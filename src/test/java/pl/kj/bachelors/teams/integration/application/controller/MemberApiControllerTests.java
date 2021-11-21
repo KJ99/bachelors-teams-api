@@ -1,5 +1,6 @@
 package pl.kj.bachelors.teams.integration.application.controller;
 
+import com.google.api.Http;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import pl.kj.bachelors.teams.domain.model.Role;
@@ -82,6 +83,31 @@ public class MemberApiControllerTests extends BaseIntegrationTest {
                 patch("/v1/teams/1/members/uid-1")
                         .contentType("application/json")
                         .content(requestBody.getBytes(StandardCharsets.UTF_8))
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testDelete_NoContent() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/members/uid-11")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testDelete_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/members/uid-1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testDelete_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                delete("/v1/teams/1/members/uid-11")
         ).andExpect(status().isUnauthorized());
     }
 }

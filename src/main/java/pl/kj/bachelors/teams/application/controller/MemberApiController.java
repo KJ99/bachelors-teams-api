@@ -13,6 +13,7 @@ import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
+import pl.kj.bachelors.teams.domain.service.crud.delete.TeamMemberDeleteService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamMemberUpdateService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
@@ -28,17 +29,20 @@ public class MemberApiController extends BaseApiController {
     private final TeamMemberRepository repository;
     private final TeamRepository teamRepository;
     private final TeamMemberUpdateService updateService;
+    private final TeamMemberDeleteService deleteService;
 
     @Autowired
     public MemberApiController(
             TeamMemberReadService readService,
             TeamMemberRepository repository,
             TeamRepository teamRepository,
-            TeamMemberUpdateService updateService) {
+            TeamMemberUpdateService updateService,
+            TeamMemberDeleteService deleteService) {
         this.readService = readService;
         this.repository = repository;
         this.teamRepository = teamRepository;
         this.updateService = updateService;
+        this.deleteService = deleteService;
     }
 
     @GetMapping
@@ -75,6 +79,12 @@ public class MemberApiController extends BaseApiController {
 
         this.updateService.processUpdate(member, jsonPatch, TeamMemberUpdateModel.class);
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> delete(@PathVariable Integer teamId, @PathVariable String userId) throws Exception {
+        this.deleteService.deleteByTeamAndUserId(teamId, userId);
         return ResponseEntity.noContent().build();
     }
 }
