@@ -3,6 +3,7 @@ package pl.kj.bachelors.teams.application.config;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.spi.MappingContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -127,15 +128,18 @@ public class MapperConfig {
             }
         });
 
-        mapper.addConverter((Converter<TeamWithParticipationResult, TeamResponse>) ctx -> {
-            TeamWithParticipationResult src = ctx.getSource();
-            TeamResponse dest = new TeamResponse();
-            mapper.map(src.getTeam(), dest);
-            dest.setRoles(src.getMember().getRoles().stream()
-                    .map(TeamRole::getName)
-                    .collect(Collectors.toList()));
+        mapper.addConverter(new Converter<TeamWithParticipationResult, TeamResponse>() {
+            @Override
+            public TeamResponse convert(MappingContext<TeamWithParticipationResult, TeamResponse> ctx) {
+                TeamWithParticipationResult src = ctx.getSource();
+                TeamResponse dest = new TeamResponse();
+                mapper.map(src.getTeam(), dest);
+                dest.setRoles(src.getMember().getRoles().stream()
+                        .map(TeamRole::getName)
+                        .collect(Collectors.toList()));
 
-            return dest;
+                return dest;
+            }
         });
 
         mapper.addMappings(new PropertyMap<TeamMember, TeamMemberResponse>() {

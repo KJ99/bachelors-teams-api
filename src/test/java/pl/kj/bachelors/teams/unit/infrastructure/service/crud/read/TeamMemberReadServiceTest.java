@@ -12,6 +12,8 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.read.TeamMemberReadServiceImpl;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TeamMemberReadServiceTest extends BaseTest {
@@ -23,8 +25,19 @@ public class TeamMemberReadServiceTest extends BaseTest {
 
     @Test
     public void testReadPagedByTeam() throws ResourceNotFoundException {
-
         Page<TeamMember> page = this.service.readPagedByTeam(1, PageRequest.of(0, 100));
         assertThat(page.getContent()).isNotEmpty();
+    }
+
+    @Test
+    public void testReadParticular() {
+        Optional<TeamMember> member = this.service.readParticular(1);
+        assertThat(member).isPresent();
+    }
+
+    @Test
+    public void testReadParticularByUserId() throws ResourceNotFoundException {
+        Optional<TeamMember> member = this.service.readParticularByUserId(1, "uid-1");
+        assertThat(member).isPresent();
     }
 }

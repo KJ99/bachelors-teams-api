@@ -11,6 +11,8 @@ import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
+import java.util.Optional;
+
 @Service
 public class TeamMemberReadServiceImpl
     extends BaseReadService<TeamMember, Integer, TeamMemberRepository, TeamMember>
@@ -35,4 +37,11 @@ public class TeamMemberReadServiceImpl
 
         return this.repository.findByTeam(team, query);
     }
+
+    @Override
+    public Optional<TeamMember> readParticularByUserId(Integer teamId, String userId) throws ResourceNotFoundException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        return this.repository.findFirstByTeamAndUserId(team, userId);
+    }
+
 }

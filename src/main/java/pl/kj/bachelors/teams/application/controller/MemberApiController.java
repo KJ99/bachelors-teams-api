@@ -34,4 +34,14 @@ public class MemberApiController extends BaseApiController {
 
         return ResponseEntity.ok(this.createPageResponse(membersPage, TeamMemberResponse.class));
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<TeamMemberResponse> getParticular(@PathVariable Integer teamId, @PathVariable String userId)
+            throws ResourceNotFoundException {
+        TeamMember member = this.readService
+                .readParticularByUserId(teamId, userId)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        return ResponseEntity.ok(this.map(member, TeamMemberResponse.class));
+    }
 }

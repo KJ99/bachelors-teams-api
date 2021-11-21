@@ -24,4 +24,21 @@ public class MemberApiControllerTests extends BaseIntegrationTest {
         ).andExpect(status().isUnauthorized());
 
     }
+
+    @Test
+    public void testGetParticular_Ok() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                get("/v1/teams/1/members/uid-1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    public void testGetParticular_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                get("/v1/teams/1/members/uid-1")
+        ).andExpect(status().isUnauthorized());
+
+    }
 }
