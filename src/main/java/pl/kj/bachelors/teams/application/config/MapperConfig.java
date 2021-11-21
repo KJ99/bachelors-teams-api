@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pl.kj.bachelors.teams.application.dto.response.UploadedFileResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.HealthCheckResponse;
 import pl.kj.bachelors.teams.application.dto.response.health.SingleCheckResponse;
+import pl.kj.bachelors.teams.application.dto.response.member.MemberRoleResponse;
 import pl.kj.bachelors.teams.application.dto.response.member.TeamRoleResponse;
 import pl.kj.bachelors.teams.application.dto.response.member.TeamMemberResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
@@ -179,6 +180,19 @@ public class MapperConfig {
 
                     return result;
                 }).map(source, destination.getRoles());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<TeamMember, MemberRoleResponse>() {
+            @Override
+            protected void configure() {
+                using(ctx ->
+                        ((TeamMember)ctx.getSource())
+                                .getRoles()
+                                .stream()
+                                .map(TeamRole::getCode)
+                                .collect(Collectors.toList())
+                ).map(source, destination.getRoles());
             }
         });
 
