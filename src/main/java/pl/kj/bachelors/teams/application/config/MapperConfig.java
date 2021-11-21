@@ -28,6 +28,7 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.domain.model.entity.UploadedFile;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
+import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 
 import java.util.HashSet;
@@ -192,6 +193,35 @@ public class MapperConfig {
                                 .stream()
                                 .map(TeamRole::getCode)
                                 .collect(Collectors.toList())
+                ).map(source, destination.getRoles());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<TeamMember, TeamMemberUpdateModel>() {
+            @Override
+            protected void configure() {
+                using(ctx ->
+                        ((TeamMember)ctx.getSource()).getRoles()
+                                .stream()
+                                .map(TeamRole::getCode)
+                                .collect(Collectors.toList())
+                ).map(source, destination.getRoles());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<TeamMemberUpdateModel, TeamMember>() {
+            @Override
+            protected void configure() {
+                using(ctx ->
+                        ((TeamMemberUpdateModel)ctx.getSource()).getRoles()
+                                .stream()
+                                .map(role -> {
+                                    var teamRole = new TeamRole();
+                                    teamRole.setCode(role);
+
+                                    return teamRole;
+                                })
+                                .collect(Collectors.toSet())
                 ).map(source, destination.getRoles());
             }
         });

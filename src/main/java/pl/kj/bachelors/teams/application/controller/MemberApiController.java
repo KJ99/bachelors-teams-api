@@ -1,5 +1,6 @@
 package pl.kj.bachelors.teams.application.controller;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +10,13 @@ import pl.kj.bachelors.teams.application.dto.response.member.TeamMemberResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
+import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
+import pl.kj.bachelors.teams.domain.service.crud.update.TeamMemberUpdateService;
+import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
+import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
 import java.util.Map;
 
@@ -19,10 +25,20 @@ import java.util.Map;
 @Authentication
 public class MemberApiController extends BaseApiController {
     private final TeamMemberReadService readService;
+    private final TeamMemberRepository repository;
+    private final TeamRepository teamRepository;
+    private final TeamMemberUpdateService updateService;
 
     @Autowired
-    public MemberApiController(TeamMemberReadService readService) {
+    public MemberApiController(
+            TeamMemberReadService readService,
+            TeamMemberRepository repository,
+            TeamRepository teamRepository,
+            TeamMemberUpdateService updateService) {
         this.readService = readService;
+        this.repository = repository;
+        this.teamRepository = teamRepository;
+        this.updateService = updateService;
     }
 
     @GetMapping
@@ -43,5 +59,22 @@ public class MemberApiController extends BaseApiController {
                 .orElseThrow(ResourceNotFoundException::new);
 
         return ResponseEntity.ok(this.map(member, TeamMemberResponse.class));
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<?> patch(
+            @PathVariable Integer teamId,
+            @PathVariable String userId,
+            @RequestBody JsonPatch jsonPatch
+            )
+            throws ResourceNotFoundException, Exception {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        TeamMember member = this.repository
+                .findFirstByTeamAndUserId(team, userId)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        this.updateService.processUpdate(member, jsonPatch, TeamMemberUpdateModel.class);
+
+        return ResponseEntity.noContent().build();
     }
 }

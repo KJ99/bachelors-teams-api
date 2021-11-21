@@ -6,5 +6,5 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 
 public interface UpdateService<T, U> {
-    void processUpdate(T original, JsonPatch patch, Class<U> updateModelClass) throws JsonPatchException, JsonProcessingException, AggregatedApiError;
+    void processUpdate(T original, JsonPatch patch, Class<U> updateModelClass) throws Exception;
 }

@@ -15,3 +15,6 @@ insert into team_invitations (id, token, code, team_id, expires_at) values
 
  insert into team_members (id, user_id, team_id) values
     (1, 'uid-1', 1);
+
+ insert into team_member_roles (team_member_id, role_id) values
+    (1, 'OWNER');

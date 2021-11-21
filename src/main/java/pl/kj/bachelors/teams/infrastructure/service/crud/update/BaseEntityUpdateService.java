@@ -33,14 +33,17 @@ public abstract class BaseEntityUpdateService<T, PK, U, R extends JpaRepository<
 
     @Transactional(rollbackFor = ApiError.class)
     public void processUpdate(T original, JsonPatch patch, Class<U> updateModelClass)
-            throws JsonPatchException, JsonProcessingException, AggregatedApiError {
+            throws Exception {
         U modelFromOriginal = this.modelMapper.map(original, updateModelClass);
         JsonNode patched = patch.apply(objectMapper.convertValue(modelFromOriginal, JsonNode.class));
 
         U updateModel = this.objectMapper.treeToValue(patched, updateModelClass);
         this.ensureThatModelIsValid(updateModel);
 
+        this.preUpdate(original, updateModel);
         this.applyUpdateModel(original, updateModel);
+        this.postUpdate(original);
+
         this.repository.save(original);
     }
 
@@ -53,6 +56,9 @@ public abstract class BaseEntityUpdateService<T, PK, U, R extends JpaRepository<
             throw ex;
         }
     }
+
+    protected void preUpdate(T original, U updateModel) throws Exception {}
+    protected void postUpdate(T entity) throws Exception {}
 
     protected void applyUpdateModel(T original, U updateModel) {
         this.modelMapper.map(updateModel, original);

@@ -113,7 +113,7 @@ public class TeamApiController extends BaseApiController {
     })
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<TeamResponse> patch(@PathVariable int id, @RequestBody JsonPatch jsonPatch)
-            throws AggregatedApiError, ResourceNotFoundException, JsonPatchException, JsonProcessingException {
+            throws Exception, ResourceNotFoundException {
         Team team = this.teamRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         this.updateService.processUpdate(team, jsonPatch, TeamUpdateModel.class);
         return ResponseEntity.noContent().build();
