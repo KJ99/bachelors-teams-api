@@ -27,6 +27,8 @@ import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.domain.model.entity.UploadedFile;
+import pl.kj.bachelors.teams.domain.model.remote.UserProfile;
+import pl.kj.bachelors.teams.domain.model.result.TeamMemberWithProfileResult;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
@@ -144,10 +146,31 @@ public class MapperConfig {
             }
         });
 
+        mapper.addConverter(new Converter<TeamMemberWithProfileResult, TeamMemberResponse>() {
+            @Override
+            public TeamMemberResponse convert(MappingContext<TeamMemberWithProfileResult, TeamMemberResponse> ctx) {
+                TeamMemberWithProfileResult src = ctx.getSource();
+                TeamMemberResponse dest = new TeamMemberResponse();
+                mapper.map(src.getMember(), dest);
+                mapper.map(src.getProfile(), dest);
+
+                return dest;
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<UserProfile, TeamMemberResponse>() {
+            @Override
+            protected void configure() {
+                skip(destination.getId());
+                map().setUserId(source.getId());
+            }
+        });
+
         mapper.addMappings(new PropertyMap<TeamMember, TeamMemberResponse>() {
             @Override
             protected void configure() {
-                map().setUid(source.getUserId());
+                map().setUserId(source.getUserId());
+
                 using(ctx -> ((TeamMember) ctx.getSource())
                             .getRoles()
                             .stream()

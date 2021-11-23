@@ -1,17 +1,37 @@
 package pl.kj.bachelors.teams.integration.application.controller;
 
 import org.apache.http.HttpHeaders;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import pl.kj.bachelors.teams.domain.model.extension.Role;
+import pl.kj.bachelors.teams.domain.model.remote.UserProfile;
+import pl.kj.bachelors.teams.infrastructure.service.remote.ProfileRemoteProvider;
 import pl.kj.bachelors.teams.integration.BaseIntegrationTest;
 import pl.kj.bachelors.teams.model.PatchOperation;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 public class MemberApiControllerTests extends BaseIntegrationTest {
+    @MockBean
+    private ProfileRemoteProvider profileRemoteProvider;
+
+    @BeforeEach
+    public void setUp() {
+        UserProfile profile = new UserProfile();
+        profile.setId("uid-000");
+        profile.setFirstName("John");
+        profile.setLastName("Doe");
+
+        given(profileRemoteProvider.get(anyString())).willReturn(Optional.of(profile));
+    }
+
     @Test
     public void testGet_Ok() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));

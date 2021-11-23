@@ -12,6 +12,7 @@ import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.domain.model.result.TeamMemberWithProfileResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.delete.TeamMemberDeleteService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
@@ -50,7 +51,8 @@ public class MemberApiController extends BaseApiController {
     public ResponseEntity<PageResponse<TeamMemberResponse>> get(
             @PathVariable Integer teamId,
             @RequestParam Map<String, String> params) throws ResourceNotFoundException {
-        Page<TeamMember> membersPage = this.readService.readPagedByTeam(teamId, this.createPageable(params));
+        Page<TeamMemberWithProfileResult> membersPage = this.readService
+                .readPagedByTeam(teamId, this.createPageable(params));
 
         return ResponseEntity.ok(this.createPageResponse(membersPage, TeamMemberResponse.class));
     }
@@ -58,7 +60,7 @@ public class MemberApiController extends BaseApiController {
     @GetMapping("/{userId}")
     public ResponseEntity<TeamMemberResponse> getParticular(@PathVariable Integer teamId, @PathVariable String userId)
             throws ResourceNotFoundException {
-        TeamMember member = this.readService
+        TeamMemberWithProfileResult member = this.readService
                 .readParticularByUserId(teamId, userId)
                 .orElseThrow(ResourceNotFoundException::new);
 
@@ -71,7 +73,7 @@ public class MemberApiController extends BaseApiController {
             @PathVariable String userId,
             @RequestBody JsonPatch jsonPatch
             )
-            throws ResourceNotFoundException, Exception {
+            throws Exception {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
         TeamMember member = this.repository
                 .findFirstByTeamAndUserId(team, userId)

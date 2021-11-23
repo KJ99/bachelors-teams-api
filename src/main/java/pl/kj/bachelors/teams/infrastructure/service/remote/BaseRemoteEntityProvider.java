@@ -1,24 +1,24 @@
 package pl.kj.bachelors.teams.infrastructure.service.remote;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.kj.bachelors.teams.domain.config.JwtConfig;
-import pl.kj.bachelors.teams.domain.service.cache.CacheManager;
 import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Optional;
 
 public abstract class BaseRemoteEntityProvider<T, ID> {
-    private final JwtConfig jwtConfig;
+    protected final JwtConfig jwtConfig;
+    protected final ObjectMapper objectMapper;
 
-    protected BaseRemoteEntityProvider(JwtConfig jwtConfig) {
+    protected BaseRemoteEntityProvider(JwtConfig jwtConfig, ObjectMapper objectMapper) {
         this.jwtConfig = jwtConfig;
+        this.objectMapper = objectMapper;
     }
 
     protected abstract String getUrl(ID entityId);
@@ -27,14 +27,20 @@ public abstract class BaseRemoteEntityProvider<T, ID> {
     public Optional<T> get(ID entityId) {
         var restTemplate = new RestTemplate();
         HttpEntity<String> entity = new HttpEntity<>("parameters", this.getHeaders());
-        ResponseEntity<T> response = restTemplate.exchange(
-                this.getUrl(entityId),
-                HttpMethod.GET, entity,
-                this.getModelClass()
+        String url = this.getUrl(entityId);
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
         );
         T result;
         if(response.getStatusCodeValue() >= 200 && response.getStatusCodeValue() <= 299) {
-            result = response.getBody();
+            try {
+                result = this.objectMapper.readValue(response.getBody(), this.getModelClass());
+            } catch (JsonProcessingException e) {
+                result = null;
+            }
         } else {
             result = null;
         }

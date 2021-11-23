@@ -1,22 +1,19 @@
 package pl.kj.bachelors.teams.infrastructure.service.remote;
 
-import org.apache.http.client.utils.URIBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.kj.bachelors.teams.domain.config.JwtConfig;
 import pl.kj.bachelors.teams.domain.model.remote.UserProfile;
 import pl.kj.bachelors.teams.infrastructure.config.IdentityServerConfig;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 @Service
 public class ProfileRemoteProvider extends BaseRemoteEntityProvider<UserProfile, String>{
     private final IdentityServerConfig config;
 
     @Autowired
-    public ProfileRemoteProvider(JwtConfig jwtConfig, IdentityServerConfig config) {
-        super(jwtConfig);
+    public ProfileRemoteProvider(JwtConfig jwtConfig, IdentityServerConfig config, ObjectMapper objectMapper) {
+        super(jwtConfig, objectMapper);
         this.config = config;
     }
 

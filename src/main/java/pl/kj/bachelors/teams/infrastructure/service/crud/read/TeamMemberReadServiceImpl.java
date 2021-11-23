@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.domain.model.remote.UserProfile;
+import pl.kj.bachelors.teams.domain.model.result.TeamMemberWithProfileResult;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
+import pl.kj.bachelors.teams.domain.service.user.ProfileProvider;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
@@ -15,33 +18,49 @@ import java.util.Optional;
 
 @Service
 public class TeamMemberReadServiceImpl
-    extends BaseReadService<TeamMember, Integer, TeamMemberRepository, TeamMember>
+    extends BaseReadService<TeamMember, Integer, TeamMemberRepository, TeamMemberWithProfileResult>
     implements TeamMemberReadService {
 
     private final TeamRepository teamRepository;
+    private final ProfileProvider profileProvider;
 
     @Autowired
-    protected TeamMemberReadServiceImpl(TeamMemberRepository repository, TeamRepository teamRepository) {
+    protected TeamMemberReadServiceImpl(
+            TeamMemberRepository repository,
+            TeamRepository teamRepository,
+            ProfileProvider profileProvider
+    ) {
         super(repository);
         this.teamRepository = teamRepository;
+        this.profileProvider = profileProvider;
     }
 
     @Override
-    protected TeamMember createResult(TeamMember source) {
-        return source;
+    protected TeamMemberWithProfileResult createResult(TeamMember source) {
+        UserProfile defaultProfile = new UserProfile();
+        defaultProfile.setId(source.getUserId());
+
+        UserProfile profile = this.profileProvider.get(source.getUserId()).orElse(defaultProfile);
+        TeamMemberWithProfileResult result = new TeamMemberWithProfileResult();
+        result.setMember(source);
+        result.setProfile(profile);
+
+        return result;
     }
 
     @Override
-    public Page<TeamMember> readPagedByTeam(Integer teamId, Pageable query) throws ResourceNotFoundException {
+    public Page<TeamMemberWithProfileResult> readPagedByTeam(Integer teamId, Pageable query) throws ResourceNotFoundException {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
 
-        return this.repository.findByTeam(team, query);
+        Page<TeamMember> membersPage = this.repository.findByTeam(team, query);
+
+        return membersPage.map(this::createResult);
     }
 
     @Override
-    public Optional<TeamMember> readParticularByUserId(Integer teamId, String userId) throws ResourceNotFoundException {
+    public Optional<TeamMemberWithProfileResult> readParticularByUserId(Integer teamId, String userId) throws ResourceNotFoundException {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
-        return this.repository.findFirstByTeamAndUserId(team, userId);
+        return this.repository.findFirstByTeamAndUserId(team, userId).map(this::createResult);
     }
 
 }
