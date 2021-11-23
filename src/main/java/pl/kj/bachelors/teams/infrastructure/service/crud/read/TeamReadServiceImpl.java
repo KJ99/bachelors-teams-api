@@ -10,7 +10,7 @@ import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
-import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public class TeamReadServiceImpl
 
     @Override
     public Page<TeamWithParticipationResult> readPaged(Pageable query) {
-        String uid = UserHandler.getCurrentUserId().orElse("");
+        String uid = RequestHandler.getCurrentUserId().orElse("");
         Page<Team> teamsPage = repository.findByUserId(uid, query);
 
         return teamsPage.map(this::createResult);
@@ -37,7 +37,7 @@ public class TeamReadServiceImpl
 
     @Override
     public Optional<TeamWithParticipationResult> readParticular(Integer identity) {
-        String uid = UserHandler.getCurrentUserId().orElse("");
+        String uid = RequestHandler.getCurrentUserId().orElse("");
         Optional<Team> team = this.repository.findByIdWithParticipation(identity, uid);
 
         return team.map(this::createResult);
@@ -45,7 +45,7 @@ public class TeamReadServiceImpl
 
     @Override
     protected TeamWithParticipationResult createResult(Team team) {
-        String uid = UserHandler.getCurrentUserId().orElse("");
+        String uid = RequestHandler.getCurrentUserId().orElse("");
         TeamMember member = this.memberRepository
                 .findFirstByTeamAndUserId(team, uid)
                 .orElse(new TeamMember());

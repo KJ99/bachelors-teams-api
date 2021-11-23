@@ -13,6 +13,7 @@ public interface CacheItemRepository extends JpaRepository<CacheItem, Integer> {
                     "tag = :tag and " +
                     "item_key = :key and " +
                     "expires_at > current_timestamp() " +
+                    "order by created_at desc " +
                     "limit 1",
             nativeQuery = true
     )

@@ -13,7 +13,7 @@ import pl.kj.bachelors.teams.domain.service.ModelValidator;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamMemberCreateService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
-import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class TeamCreateServiceImpl
 
     @Override
     protected void postCreate(Team team) throws Exception {
-        String uid = UserHandler.getCurrentUserId().orElseThrow(AccessDeniedException::new);
+        String uid = RequestHandler.getCurrentUserId().orElseThrow(AccessDeniedException::new);
         Set<Role> memberRoles = new HashSet<>();
         memberRoles.add(Role.OWNER);
 

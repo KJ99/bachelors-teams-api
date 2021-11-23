@@ -10,11 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import pl.kj.bachelors.teams.BaseTest;
-import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
-import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.infrastructure.service.crud.read.TeamReadServiceImpl;
-import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Optional;
 
@@ -25,14 +23,14 @@ public class TeamReadServiceTests extends BaseTest {
     @Autowired
     private TeamReadServiceImpl service;
 
-    MockedStatic<UserHandler> userHandlerMock;
+    MockedStatic<RequestHandler> userHandlerMock;
 
     @BeforeEach
     public void setUp()
     {
-        this.userHandlerMock = Mockito.mockStatic(UserHandler.class);
+        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
 
-        when(UserHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
+        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
     }
 
     @AfterEach

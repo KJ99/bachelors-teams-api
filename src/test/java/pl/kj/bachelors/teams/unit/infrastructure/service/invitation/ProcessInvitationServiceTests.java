@@ -17,7 +17,7 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 import pl.kj.bachelors.teams.infrastructure.service.invitation.ProcessInvitationService;
-import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Optional;
 
@@ -35,14 +35,14 @@ public class ProcessInvitationServiceTests extends BaseTest {
     @Autowired
     private TeamRepository teamRepository;
 
-    MockedStatic<UserHandler> userHandlerMock;
+    MockedStatic<RequestHandler> userHandlerMock;
 
     @BeforeEach
     public void setUp()
     {
-        this.userHandlerMock = Mockito.mockStatic(UserHandler.class);
+        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
 
-        when(UserHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
+        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
     }
 
     @AfterEach

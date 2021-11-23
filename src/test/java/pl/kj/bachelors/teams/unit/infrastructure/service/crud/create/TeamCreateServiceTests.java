@@ -13,7 +13,7 @@ import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.create.TeamCreateServiceImpl;
-import pl.kj.bachelors.teams.infrastructure.user.UserHandler;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Optional;
 
@@ -29,14 +29,14 @@ public class TeamCreateServiceTests extends BaseTest {
     private TeamMemberRepository memberRepository;
     private final String uid = "uid-2";
 
-    MockedStatic<UserHandler> userHandlerMock;
+    MockedStatic<RequestHandler> userHandlerMock;
 
     @BeforeEach
     public void setUp()
     {
-        this.userHandlerMock = Mockito.mockStatic(UserHandler.class);
+        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
 
-        when(UserHandler.getCurrentUserId()).thenReturn(Optional.of(this.uid));
+        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of(this.uid));
     }
 
     @AfterEach
