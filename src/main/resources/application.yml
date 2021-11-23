@@ -33,6 +33,8 @@ spring:
           auth: true
           starttls:
             enable: true
+in-app-cache:
+  valid-time-in-hours: 1
 api:
   host: ''
   errors:

@@ -1,12 +1,11 @@
 package pl.kj.bachelors.teams.unit.infrastructure.service.crud.update;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
-import pl.kj.bachelors.teams.domain.model.AppTheme;
+import pl.kj.bachelors.teams.domain.model.extension.AppTheme;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;

@@ -1,9 +1,8 @@
 package pl.kj.bachelors.teams.integration.application.controller;
 
-import com.google.api.Http;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.integration.BaseIntegrationTest;
 import pl.kj.bachelors.teams.model.PatchOperation;
 

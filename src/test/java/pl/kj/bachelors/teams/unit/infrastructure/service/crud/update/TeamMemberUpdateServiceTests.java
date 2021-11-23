@@ -1,17 +1,13 @@
 package pl.kj.bachelors.teams.unit.infrastructure.service.crud.update;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
-import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
-import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.update.TeamMemberUpdateServiceImpl;
 import pl.kj.bachelors.teams.model.PatchOperation;

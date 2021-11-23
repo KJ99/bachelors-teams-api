@@ -1,7 +1,7 @@
 package pl.kj.bachelors.teams.domain.model.create;
 
 import pl.kj.bachelors.teams.domain.constraint.FromEnum;
-import pl.kj.bachelors.teams.domain.model.AppTheme;
+import pl.kj.bachelors.teams.domain.model.extension.AppTheme;
 
 import javax.validation.constraints.NotBlank;
 

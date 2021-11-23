@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
@@ -77,7 +77,7 @@ public class ProcessInvitationServiceTests extends BaseTest {
 
     @Test
     @Transactional
-    public void testJoinTeam() throws Exception, ResourceNotFoundException {
+    public void testJoinTeam() throws Exception {
         final Team team = this.teamRepository.findById(1).orElseThrow();
         final String uid = "uid-2";
         final String token = "valid-token-1";

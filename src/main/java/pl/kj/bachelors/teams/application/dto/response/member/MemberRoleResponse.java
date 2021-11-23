@@ -1,6 +1,6 @@
 package pl.kj.bachelors.teams.application.dto.response.member;
 
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 
 import java.util.Collection;
 

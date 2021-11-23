@@ -1,6 +1,6 @@
 package pl.kj.bachelors.teams.domain.model.embeddable;
 
-import pl.kj.bachelors.teams.domain.model.AppTheme;
+import pl.kj.bachelors.teams.domain.model.extension.AppTheme;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

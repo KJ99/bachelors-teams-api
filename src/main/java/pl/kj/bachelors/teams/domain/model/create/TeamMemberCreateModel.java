@@ -1,10 +1,8 @@
 package pl.kj.bachelors.teams.domain.model.create;
 
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class TeamMemberCreateModel {

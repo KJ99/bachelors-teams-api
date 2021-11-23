@@ -7,8 +7,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.kj.bachelors.teams.application.filter.LoggingFilter;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRoleRepository;
 
@@ -26,7 +25,7 @@ public class TeamRoleInitializer implements ApplicationRunner {
 
     @Override
     @Transactional
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         Logger logger = LoggerFactory.getLogger(TeamRoleInitializer.class);
         logger.info("Role initializer was started");
         Map<Role, String> data = new HashMap<>();

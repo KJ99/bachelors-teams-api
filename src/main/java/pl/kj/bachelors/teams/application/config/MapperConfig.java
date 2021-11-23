@@ -20,7 +20,7 @@ import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;

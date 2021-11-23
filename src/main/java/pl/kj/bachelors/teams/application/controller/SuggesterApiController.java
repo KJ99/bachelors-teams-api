@@ -7,11 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.kj.bachelors.teams.application.dto.response.member.TeamRoleResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.TeamRole;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRoleRepository;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 

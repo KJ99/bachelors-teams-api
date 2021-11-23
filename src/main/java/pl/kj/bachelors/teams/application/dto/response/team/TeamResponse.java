@@ -1,8 +1,5 @@
 package pl.kj.bachelors.teams.application.dto.response.team;
 
-import pl.kj.bachelors.teams.domain.model.Role;
-import pl.kj.bachelors.teams.domain.model.embeddable.TeamSettings;
-
 import java.util.Collection;
 
 public class TeamResponse {

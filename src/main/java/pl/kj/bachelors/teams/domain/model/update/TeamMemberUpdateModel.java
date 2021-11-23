@@ -1,7 +1,7 @@
 package pl.kj.bachelors.teams.domain.model.update;
 
 
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package pl.kj.bachelors.teams.domain.model;
+package pl.kj.bachelors.teams.domain.model.extension;
 
 public enum Role {
     OWNER,

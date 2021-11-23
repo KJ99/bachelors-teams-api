@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.service.crud.delete.TeamMemberDeleteService;

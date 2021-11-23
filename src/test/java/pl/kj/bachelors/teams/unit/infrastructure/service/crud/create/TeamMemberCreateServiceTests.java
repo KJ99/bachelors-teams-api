@@ -3,7 +3,7 @@ package pl.kj.bachelors.teams.unit.infrastructure.service.crud.create;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.kj.bachelors.teams.BaseTest;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.service.crud.create.TeamMemberCreateServiceImpl;

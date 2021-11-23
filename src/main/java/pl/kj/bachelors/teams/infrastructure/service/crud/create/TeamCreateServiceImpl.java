@@ -4,7 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
-import pl.kj.bachelors.teams.domain.model.Role;
+import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
