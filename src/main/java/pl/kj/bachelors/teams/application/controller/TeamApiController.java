@@ -28,16 +28,20 @@ import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
+import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.domain.model.extension.action.TeamCrudAction;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.delete.TeamDeleteService;
+import pl.kj.bachelors.teams.domain.service.crud.delete.TeamMemberDeleteService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamUpdateService;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
 import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
+import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
 
 import java.util.Map;
 
@@ -51,6 +55,8 @@ public class TeamApiController extends BaseApiController{
     private final TeamUpdateService updateService;
     private final TeamReadService readService;
     private final TeamRepository repository;
+    private final TeamMemberRepository memberRepository;
+    private final TeamMemberDeleteService memberDeleteService;
     private final EntityAccessControlService<Team> accessControl;
     private final TeamDeleteService deleteService;
 
@@ -61,6 +67,8 @@ public class TeamApiController extends BaseApiController{
             TeamUpdateService updateService,
             TeamReadService readService,
             TeamRepository repository,
+            TeamMemberRepository memberRepository,
+            TeamMemberDeleteService memberDeleteService,
             EntityAccessControlService<Team> accessControl,
             TeamDeleteService deleteService) {
         this.invitationProcessor = invitationProcessor;
@@ -68,6 +76,8 @@ public class TeamApiController extends BaseApiController{
         this.updateService = updateService;
         this.readService = readService;
         this.repository = repository;
+        this.memberRepository = memberRepository;
+        this.memberDeleteService = memberDeleteService;
         this.accessControl = accessControl;
         this.deleteService = deleteService;
     }
@@ -186,5 +196,11 @@ public class TeamApiController extends BaseApiController{
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}/leave")
+    public ResponseEntity<?> leaveTeam(@PathVariable Integer id) throws Exception {
+        String uid = RequestHandler.getCurrentUserId().orElseThrow(AccessDeniedException::new);
+        this.memberDeleteService.deleteByTeamAndUserId(id, uid);
 
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -320,6 +320,33 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
         ).andExpect(status().isForbidden());
     }
 
+    @Test
+    public void testLeave_NoContent() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-11"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/leave")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testLeave_NotFound() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-999"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/leave")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testLeave_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/leave")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
+    }
+
     private TeamCreateModel getCorrectCreateModel() {
         TeamCreateModel model = new TeamCreateModel();
         model.setName("Team-1");
