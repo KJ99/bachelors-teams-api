@@ -1,6 +1,7 @@
 package pl.kj.bachelors.teams.integration.application.controller;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.kj.bachelors.teams.application.dto.request.JoinTeamRequest;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
@@ -292,6 +293,31 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                         .contentType("application/json")
                         .content(requestBody)
         ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testDelete_NoContent() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testDelete_Unauthorized() throws Exception {
+        this.mockMvc.perform(
+                delete("/v1/teams/1")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testDelete_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-11"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
     }
 
     private TeamCreateModel getCorrectCreateModel() {

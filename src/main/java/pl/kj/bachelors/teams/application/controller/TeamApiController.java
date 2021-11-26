@@ -32,6 +32,7 @@ import pl.kj.bachelors.teams.domain.model.extension.action.TeamCrudAction;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
+import pl.kj.bachelors.teams.domain.service.crud.delete.TeamDeleteService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamUpdateService;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
@@ -51,6 +52,7 @@ public class TeamApiController extends BaseApiController{
     private final TeamReadService readService;
     private final TeamRepository repository;
     private final EntityAccessControlService<Team> accessControl;
+    private final TeamDeleteService deleteService;
 
     @Autowired
     public TeamApiController(
@@ -59,13 +61,15 @@ public class TeamApiController extends BaseApiController{
             TeamUpdateService updateService,
             TeamReadService readService,
             TeamRepository repository,
-            EntityAccessControlService<Team> accessControl) {
+            EntityAccessControlService<Team> accessControl,
+            TeamDeleteService deleteService) {
         this.invitationProcessor = invitationProcessor;
         this.createService = createService;
         this.updateService = updateService;
         this.readService = readService;
         this.repository = repository;
         this.accessControl = accessControl;
+        this.deleteService = deleteService;
     }
 
 
@@ -171,4 +175,16 @@ public class TeamApiController extends BaseApiController{
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
+        Team team = this.repository.findById(id).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamCrudAction.DELETE);
+
+        this.deleteService.delete(team);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
