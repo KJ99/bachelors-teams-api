@@ -1,6 +1,9 @@
 package pl.kj.bachelors.teams.application.controller;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +25,7 @@ import pl.kj.bachelors.teams.application.dto.response.error.ValidationErrorRespo
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
 import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
+import pl.kj.bachelors.teams.application.example.TeamPageExample;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
@@ -139,10 +143,16 @@ public class TeamApiController extends BaseApiController{
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = PageResponse.class))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = TeamPageExample.class)
+                    )
             ),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @Operation(parameters = {
+            @Parameter(name = "params", schema = @Schema(implementation = PagingQuery.class))
     })
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> get(@RequestParam Map<String, String> params) {
@@ -160,7 +170,10 @@ public class TeamApiController extends BaseApiController{
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    content = @Content(schema = @Schema(implementation = PageResponse.class))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = TeamResponse.class)
+                    )
             ),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
@@ -178,6 +191,23 @@ public class TeamApiController extends BaseApiController{
     }
 
     @PostMapping("/join")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = ValidationErrorResponse.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> join(@RequestBody JoinTeamRequest request)
             throws CredentialsNotFoundException, Exception {
         String uid = this.getCurrentUserId().orElseThrow(CredentialsNotFoundException::new);
@@ -187,6 +217,16 @@ public class TeamApiController extends BaseApiController{
     }
 
     @DeleteMapping("/{id}")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> delete(@PathVariable Integer id) throws Exception {
         Team team = this.repository.findById(id).orElseThrow(ResourceNotFoundException::new);
         this.accessControl.ensureThatUserHasAccess(team, TeamCrudAction.DELETE);
@@ -197,6 +237,16 @@ public class TeamApiController extends BaseApiController{
     }
 
     @DeleteMapping("/{id}/leave")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "204",
+                    content = @Content(schema = @Schema(hidden = true))
+            ),
+            @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true)))
+    })
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<?> leaveTeam(@PathVariable Integer id) throws Exception {
         String uid = RequestHandler.getCurrentUserId().orElseThrow(AccessDeniedException::new);
         this.memberDeleteService.deleteByTeamAndUserId(id, uid);
