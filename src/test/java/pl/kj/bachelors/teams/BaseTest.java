@@ -1,10 +1,24 @@
 package pl.kj.bachelors.teams;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatchOperation;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import pl.kj.bachelors.teams.application.Application;
 import pl.kj.bachelors.teams.application.config.*;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+
+import java.util.Optional;
+
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
@@ -18,4 +32,33 @@ import pl.kj.bachelors.teams.application.config.*;
 @Sql(value = "/db.test/seed.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = "/db.test/clear.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class BaseTest {
+    @Autowired
+    protected ObjectMapper objectMapper;
+
+    protected String serialize(Object model) {
+        String json;
+        try {
+            json = this.objectMapper.writer().writeValueAsString(model);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            json = "";
+        }
+
+        return json;
+    }
+
+    protected <T> T deserialize(String value, Class<T> destinationClass) {
+        T result;
+        try {
+            result = this.objectMapper.readValue(value, destinationClass);
+        } catch (JsonProcessingException e) {
+            result = null;
+        }
+
+        return result;
+    }
+
+    protected String getCurrentUserId() {
+        return "uid-1";
+    }
 }

@@ -2,7 +2,7 @@ package pl.kj.bachelors.teams.domain.exception;
 
 import java.util.Collection;
 
-public class AggregatedApiError extends Throwable {
+public class AggregatedApiError extends Exception {
     private Collection<ApiError> errors;
 
     public Collection<ApiError> getErrors() {

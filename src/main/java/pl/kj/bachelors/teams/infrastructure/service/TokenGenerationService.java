@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.Calendar;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,10 +40,38 @@ public class TokenGenerationService {
         return String.join("", pinElements);
     }
 
+    public String generateAlphanumericToken(int length) {
+        List<Character> characters = this.getAlphanumericCharset();
+        Random random = new Random();
+        char[] tokenElements = new char[length];
+        for(int i = 0; i < tokenElements.length; i++) {
+            tokenElements[i] = characters.get(random.nextInt(characters.size() - 1));
+        }
+
+        return String.valueOf(tokenElements);
+    }
+
     private String generateContent(final int length) {
         Random random = new Random();
         byte[] bytes = new byte[length];
         random.nextBytes(bytes);
         return String.valueOf(Hex.encode(bytes));
+    }
+
+    private List<Character> getAlphanumericCharset() {
+        List<Character> characters = new ArrayList<>();
+        int[][] bounds = new int[][] {
+                new int[] { 0x30, 0x39 },
+                new int[] { 0x41, 0x5A },
+                new int[] { 0x61, 0x7A }
+        };
+
+        for(int[] bound : bounds) {
+            for(int code = bound[0]; code <= bound[1]; code++) {
+                characters.add((char) code);
+            }
+        }
+
+        return characters;
     }
 }

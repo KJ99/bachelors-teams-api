@@ -78,6 +78,7 @@ public class ResourceApiController extends BaseApiController {
     public ResponseEntity<UploadedFileResponse> post(
             @RequestParam("file") final MultipartFile file
     ) throws IOException, CredentialsNotFoundException, AggregatedApiError {
+        String uid = this.getCurrentUserId().orElseThrow(CredentialsNotFoundException::new);
         final UploadedFile resultEntity = this.fileUploadService.processUpload(
                 file,
                 this.config.getAllowedTypes(),
@@ -85,6 +86,15 @@ public class ResourceApiController extends BaseApiController {
         );
 
         this.uploadedFileRepository.save(resultEntity);
+
+        this.logger.info(
+                String.format("File with name %s (original: %s) was uploaded by user %s from address %s",
+                        resultEntity.getFileName(),
+                        resultEntity.getOriginalFileName(),
+                        uid,
+                        this.currentRequest.getRemoteAddr()
+                )
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(this.map(resultEntity, UploadedFileResponse.class));
     }

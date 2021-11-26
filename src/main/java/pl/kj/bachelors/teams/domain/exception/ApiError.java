@@ -1,6 +1,6 @@
 package pl.kj.bachelors.teams.domain.exception;
 
-public class ApiError extends Throwable {
+public class ApiError extends Exception {
     private final String path;
     private final String message;
     private final String code;

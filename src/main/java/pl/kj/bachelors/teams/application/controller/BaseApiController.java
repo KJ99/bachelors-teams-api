@@ -1,5 +1,6 @@
 package pl.kj.bachelors.teams.application.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import javassist.NotFoundException;
@@ -8,12 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pl.kj.bachelors.teams.application.dto.request.PagingQuery;
 import pl.kj.bachelors.teams.application.dto.response.error.GenericErrorResponse;
 import pl.kj.bachelors.teams.application.dto.response.error.ValidationErrorResponse;
+import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
+import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
+import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
 import pl.kj.bachelors.teams.domain.exception.*;
 import pl.kj.bachelors.teams.domain.service.ModelValidator;
@@ -21,6 +29,8 @@ import pl.kj.bachelors.teams.domain.service.ModelValidator;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.NoSuchFileException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +46,8 @@ abstract class BaseApiController {
     protected HttpServletRequest currentRequest;
     @Autowired(required = false)
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+    @Autowired
+    private ObjectMapper objectMapper;
 
     protected  <T> T map(Object source, Class<T> destinationType) {
         return this.mapper.map(source, destinationType);
@@ -142,5 +154,26 @@ abstract class BaseApiController {
         Matcher matcher = pattern.matcher(message);
 
         return matcher.find();
+    }
+
+    protected Optional<String> getCurrentUserId() {
+        return Optional.ofNullable((String) this.currentRequest.getAttribute("uid"));
+    }
+
+    protected Pageable createPageable(Map<String, String> params) {
+        PagingQuery query = this.parseQueryParams(params, PagingQuery.class);
+        return PageRequest.of(query.getPage(), query.getPageSize());
+    }
+
+    protected <T> T parseQueryParams(Map<String, String> params, Class<T> destinationClass) {
+        return this.objectMapper.convertValue(params, destinationClass);
+    }
+
+    protected <S, T> PageResponse<T> createPageResponse(Page<S> data, Class<T> modelClass) {
+        PageResponse<T> response = new PageResponse<>();
+        response.setMetadata(this.map(data, PageMetadata.class));
+        response.setData(this.mapCollection(data.getContent(), modelClass));
+
+        return response;
     }
 }

@@ -33,7 +33,12 @@ spring:
           auth: true
           starttls:
             enable: true
+in-app-cache:
+  valid-time-in-hours: 3
 api:
   host: ''
   errors:
-    A.0: Unexpected error has occured
+    TM.001: Value of this field must not be empty
+    TM.002: Invalid value
+    TM.101: Invitation token has expired
+    TM.102: You are already a member of this team
