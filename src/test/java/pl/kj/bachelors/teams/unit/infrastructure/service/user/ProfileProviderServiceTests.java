@@ -12,13 +12,14 @@ import pl.kj.bachelors.teams.domain.model.remote.UserProfile;
 import pl.kj.bachelors.teams.infrastructure.service.remote.ProfileRemoteProvider;
 import pl.kj.bachelors.teams.infrastructure.service.user.ProfileProviderService;
 import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-public class ProfileProviderServiceTests extends BaseTest {
+public class ProfileProviderServiceTests extends BaseUnitTest {
     @Autowired
     private ProfileProviderService service;
     @MockBean
@@ -59,16 +60,14 @@ public class ProfileProviderServiceTests extends BaseTest {
 
     @Test
     public void testGet_NoCache_Header() {
-        try (MockedStatic<RequestHandler> handler = Mockito.mockStatic(RequestHandler.class)) {
-            handler.when(() -> RequestHandler.getHeaderValue(HttpHeaders.CACHE_CONTROL))
-                    .thenReturn(Optional.of("no-cache"));
+        this.requestHandlerMock.when(() -> RequestHandler.getHeaderValue(HttpHeaders.CACHE_CONTROL))
+                .thenReturn(Optional.of("no-cache"));
 
-            Optional<UserProfile> result = this.service.get("uid-100");
+        Optional<UserProfile> result = this.service.get("uid-100");
 
-            assertThat(result).isPresent();
-            assertThat(result.get().getFirstName()).isEqualTo("Mark");
-            assertThat(result.get().getLastName()).isEqualTo("Doe");
-        }
+        assertThat(result).isPresent();
+        assertThat(result.get().getFirstName()).isEqualTo("Mark");
+        assertThat(result.get().getLastName()).isEqualTo("Doe");
     }
 
     @Test

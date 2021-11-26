@@ -1,6 +1,5 @@
 package pl.kj.bachelors.teams.application.controller;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +10,11 @@ import pl.kj.bachelors.teams.application.dto.response.invitation.InvitationRespo
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
+import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationManager;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
+import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
 
 import java.util.concurrent.ExecutionException;
 
@@ -25,14 +26,17 @@ public class InvitationApiController extends BaseApiController {
     private final InvitationProcessor processor;
 
     @Autowired
-    public InvitationApiController(InvitationManager manager, InvitationProcessor processor) {
+    public InvitationApiController(
+            InvitationManager manager,
+            InvitationProcessor processor
+    ) {
         this.manager = manager;
         this.processor = processor;
     }
 
     @PostMapping
     private ResponseEntity<InvitationCreateResponse> createInvitation(@RequestBody InvitationCreateRequest model)
-            throws ResourceNotFoundException, ExecutionException, InterruptedException {
+            throws ResourceNotFoundException, ExecutionException, InterruptedException, AccessDeniedException {
         TeamInvitation invitation = this.manager.open(model.getTeamId());
 
         return ResponseEntity
@@ -49,7 +53,8 @@ public class InvitationApiController extends BaseApiController {
     }
 
     @DeleteMapping("/{code}")
-    private ResponseEntity<?> closeInvitation(@PathVariable String code) throws ResourceNotFoundException {
+    private ResponseEntity<?> closeInvitation(@PathVariable String code)
+            throws ResourceNotFoundException, AccessDeniedException {
         this.manager.close(code);
 
         return ResponseEntity.noContent().build();

@@ -40,3 +40,5 @@ api:
   errors:
     TM.001: Value of this field must not be empty
     TM.002: Invalid value
+    TM.101: Invitation token has expired
+    TM.102: You are already a member of this team

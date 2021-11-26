@@ -104,6 +104,19 @@ public class MemberApiControllerTests extends BaseIntegrationTest {
                         .content(requestBody.getBytes(StandardCharsets.UTF_8))
         ).andExpect(status().isUnauthorized());
     }
+    @Test
+    public void testPatch_Forbidden() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-11"));
+        String requestBody = this.serialize(new PatchOperation[] {
+                new PatchOperation("add", "/roles/-", Role.SCRUM_MASTER)
+        });
+        this.mockMvc.perform(
+                patch("/v1/teams/1/members/uid-1")
+                        .contentType("application/json")
+                        .content(requestBody.getBytes(StandardCharsets.UTF_8))
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
+    }
 
     @Test
     public void testDelete_NoContent() throws Exception {
@@ -115,7 +128,7 @@ public class MemberApiControllerTests extends BaseIntegrationTest {
     }
 
     @Test
-    public void testDelete_Forbidden() throws Exception {
+    public void testDelete_Forbidden_CannotDeleteSelf() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
         this.mockMvc.perform(
                 delete("/v1/teams/1/members/uid-1")
@@ -128,5 +141,14 @@ public class MemberApiControllerTests extends BaseIntegrationTest {
         this.mockMvc.perform(
                 delete("/v1/teams/1/members/uid-11")
         ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testDelete_Forbidden_InsufficientRole() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-11"));
+        this.mockMvc.perform(
+                delete("/v1/teams/1/members/uid-100")
+                        .header(HttpHeaders.AUTHORIZATION, auth)
+        ).andExpect(status().isForbidden());
     }
 }

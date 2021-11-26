@@ -9,13 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.infrastructure.service.file.FileUploadService;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class FileUploadServiceTests extends BaseTest {
+public class FileUploadServiceTests extends BaseUnitTest {
     @Autowired
     private FileUploadService service;
 

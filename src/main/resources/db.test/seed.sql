@@ -15,11 +15,13 @@ insert into team_invitations (id, token, code, team_id, expires_at) values
 
  insert into team_members (id, user_id, team_id) values
     (1, 'uid-1', 1),
-    (2, 'uid-11', 1);
+    (2, 'uid-11', 1),
+    (3, 'uid-100', 1);
 
  insert into team_member_roles (team_member_id, role_id) values
     (1, 'OWNER'),
-    (2, 'TEAM_MEMBER');
+    (2, 'TEAM_MEMBER'),
+    (3, 'TEAM_MEMBER');
 
  insert into cache_items (item_key, tag, item_value, expires_at) values
     ('key-1', 'USER_PROFILE', '{"first_name": "Francis"}', '3000-12-12 22:22:22'),

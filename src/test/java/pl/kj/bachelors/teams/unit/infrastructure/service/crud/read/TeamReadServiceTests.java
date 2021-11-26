@@ -13,30 +13,17 @@ import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.infrastructure.service.crud.read.TeamReadServiceImpl;
 import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class TeamReadServiceTests extends BaseTest {
+public class TeamReadServiceTests extends BaseUnitTest {
     @Autowired
     private TeamReadServiceImpl service;
 
-    MockedStatic<RequestHandler> userHandlerMock;
-
-    @BeforeEach
-    public void setUp()
-    {
-        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
-
-        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        this.userHandlerMock.close();
-    }
 
     @Test
     public void testReadPaged() {

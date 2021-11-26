@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kj.bachelors.teams.BaseTest;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
+import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
@@ -18,6 +19,7 @@ import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 import pl.kj.bachelors.teams.infrastructure.service.invitation.ProcessInvitationService;
 import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.util.Optional;
 
@@ -25,7 +27,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.Mockito.when;
 
-public class ProcessInvitationServiceTests extends BaseTest {
+public class ProcessInvitationServiceTests extends BaseUnitTest {
     @Autowired
     private ProcessInvitationService service;
 
@@ -34,21 +36,6 @@ public class ProcessInvitationServiceTests extends BaseTest {
 
     @Autowired
     private TeamRepository teamRepository;
-
-    MockedStatic<RequestHandler> userHandlerMock;
-
-    @BeforeEach
-    public void setUp()
-    {
-        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
-
-        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of("uid-1"));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        this.userHandlerMock.close();
-    }
 
     @Test
     public void testUnwrap() {
@@ -99,12 +86,26 @@ public class ProcessInvitationServiceTests extends BaseTest {
     }
 
     @Test
-    public void testJoinTeam_AccessDenied() {
+    public void testJoinTeam_TokenExpired() {
         final String uid = "uid-1";
         final String token = "expired-token-1";
 
         Throwable thrown = catchThrowable(() -> this.service.joinTeam(uid, token));
 
-        assertThat(thrown).isInstanceOf(AccessDeniedException.class);
+        assertThat(thrown).isInstanceOf(AggregatedApiError.class);
+        AggregatedApiError ex = (AggregatedApiError) thrown;
+        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.101")));
+    }
+
+    @Test
+    public void testJoinTeam_AlreadyMember() {
+        final String uid = "uid-1";
+        final String token = "expired-token-1";
+
+        Throwable thrown = catchThrowable(() -> this.service.joinTeam(uid, token));
+
+        assertThat(thrown).isInstanceOf(AggregatedApiError.class);
+        AggregatedApiError ex = (AggregatedApiError) thrown;
+        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.102")));
     }
 }

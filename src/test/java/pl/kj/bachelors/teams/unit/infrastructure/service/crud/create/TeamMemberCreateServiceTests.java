@@ -7,10 +7,11 @@ import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.service.crud.create.TeamMemberCreateServiceImpl;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TeamMemberCreateServiceTests extends BaseTest {
+public class TeamMemberCreateServiceTests extends BaseUnitTest {
     @Autowired
     private TeamMemberCreateServiceImpl service;
 

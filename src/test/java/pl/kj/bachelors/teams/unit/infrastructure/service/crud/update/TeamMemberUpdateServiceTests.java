@@ -11,13 +11,14 @@ import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.update.TeamMemberUpdateServiceImpl;
 import pl.kj.bachelors.teams.model.PatchOperation;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
-public class TeamMemberUpdateServiceTests extends BaseTest {
+public class TeamMemberUpdateServiceTests extends BaseUnitTest {
     @Autowired
     private TeamMemberUpdateServiceImpl service;
     @Autowired

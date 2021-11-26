@@ -1,8 +1,6 @@
 package pl.kj.bachelors.teams.application.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
-import com.github.fge.jsonpatch.JsonPatchException;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,17 +24,18 @@ import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
-import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.exception.CredentialsNotFoundException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
+import pl.kj.bachelors.teams.domain.model.extension.action.TeamCrudAction;
 import pl.kj.bachelors.teams.domain.model.result.TeamWithParticipationResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamCreateService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamUpdateService;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
+import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
 import java.util.Map;
@@ -46,27 +44,30 @@ import java.util.Map;
 @RequestMapping("/v1/teams")
 @Tag(name = "Teams")
 @Authentication
-public class TeamApiController extends BaseApiController {
+public class TeamApiController extends BaseApiController{
+    private final InvitationProcessor invitationProcessor;
     private final TeamCreateService createService;
     private final TeamUpdateService updateService;
-    private final TeamRepository teamRepository;
-    private final TeamReadService teamReadService;
-    private final InvitationProcessor invitationProcessor;
+    private final TeamReadService readService;
+    private final TeamRepository repository;
+    private final EntityAccessControlService<Team> accessControl;
 
     @Autowired
     public TeamApiController(
+            InvitationProcessor invitationProcessor,
             TeamCreateService createService,
-            TeamRepository teamRepository,
             TeamUpdateService updateService,
-            TeamReadService teamReadService,
-            InvitationProcessor invitationProcessor
-    ) {
-        this.createService = createService;
-        this.teamRepository = teamRepository;
-        this.updateService = updateService;
-        this.teamReadService = teamReadService;
+            TeamReadService readService,
+            TeamRepository repository,
+            EntityAccessControlService<Team> accessControl) {
         this.invitationProcessor = invitationProcessor;
+        this.createService = createService;
+        this.updateService = updateService;
+        this.readService = readService;
+        this.repository = repository;
+        this.accessControl = accessControl;
     }
+
 
     @PostMapping
     @ApiResponses({
@@ -113,8 +114,9 @@ public class TeamApiController extends BaseApiController {
     })
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<TeamResponse> patch(@PathVariable int id, @RequestBody JsonPatch jsonPatch)
-            throws Exception, ResourceNotFoundException {
-        Team team = this.teamRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+            throws Exception {
+        Team team = this.repository.findById(id).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamCrudAction.UPDATE);
         this.updateService.processUpdate(team, jsonPatch, TeamUpdateModel.class);
         return ResponseEntity.noContent().build();
     }
@@ -132,7 +134,7 @@ public class TeamApiController extends BaseApiController {
     public ResponseEntity<?> get(@RequestParam Map<String, String> params) {
         PagingQuery query = this.parseQueryParams(params, PagingQuery.class);
         Pageable pageable = PageRequest.of(query.getPage(), query.getPageSize());
-        Page<TeamWithParticipationResult> page = this.teamReadService.readPaged(pageable);
+        Page<TeamWithParticipationResult> page = this.readService.readPaged(pageable);
         PageResponse<TeamResponse> response = new PageResponse<>();
         response.setMetadata(this.map(page, PageMetadata.class));
         response.setData(this.mapCollection(page.getContent(), TeamResponse.class));
@@ -152,17 +154,18 @@ public class TeamApiController extends BaseApiController {
     })
     @SecurityRequirement(name = "JWT")
     public ResponseEntity<TeamResponse> getParticular(@PathVariable int id)
-            throws ResourceNotFoundException {
-        TeamWithParticipationResult team = this.teamReadService
+            throws ResourceNotFoundException, AccessDeniedException {
+        TeamWithParticipationResult result = this.readService
                 .readParticular(id)
                 .orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(result.getTeam(), TeamCrudAction.READ);
 
-        return ResponseEntity.ok(this.map(team, TeamResponse.class));
+        return ResponseEntity.ok(this.map(result, TeamResponse.class));
     }
 
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody JoinTeamRequest request)
-            throws CredentialsNotFoundException, Exception, ResourceNotFoundException {
+            throws CredentialsNotFoundException, Exception {
         String uid = this.getCurrentUserId().orElseThrow(CredentialsNotFoundException::new);
         this.invitationProcessor.joinTeam(uid, request.getInviteToken());
 

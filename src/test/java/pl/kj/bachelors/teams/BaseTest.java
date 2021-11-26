@@ -4,12 +4,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatchOperation;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import pl.kj.bachelors.teams.application.Application;
 import pl.kj.bachelors.teams.application.config.*;
+import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+
+import java.util.Optional;
+
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ContextConfiguration(classes = {
@@ -47,5 +56,9 @@ public class BaseTest {
         }
 
         return result;
+    }
+
+    protected String getCurrentUserId() {
+        return "uid-1";
     }
 }

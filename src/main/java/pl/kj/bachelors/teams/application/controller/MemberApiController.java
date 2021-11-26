@@ -9,14 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import pl.kj.bachelors.teams.application.dto.response.member.TeamMemberResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageResponse;
 import pl.kj.bachelors.teams.domain.annotation.Authentication;
+import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
+import pl.kj.bachelors.teams.domain.model.extension.action.TeamMemberAction;
 import pl.kj.bachelors.teams.domain.model.result.TeamMemberWithProfileResult;
 import pl.kj.bachelors.teams.domain.model.update.TeamMemberUpdateModel;
 import pl.kj.bachelors.teams.domain.service.crud.delete.TeamMemberDeleteService;
 import pl.kj.bachelors.teams.domain.service.crud.read.TeamMemberReadService;
 import pl.kj.bachelors.teams.domain.service.crud.update.TeamMemberUpdateService;
+import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
@@ -31,6 +34,7 @@ public class MemberApiController extends BaseApiController {
     private final TeamRepository teamRepository;
     private final TeamMemberUpdateService updateService;
     private final TeamMemberDeleteService deleteService;
+    private final EntityAccessControlService<Team> accessControl;
 
     @Autowired
     public MemberApiController(
@@ -38,19 +42,22 @@ public class MemberApiController extends BaseApiController {
             TeamMemberRepository repository,
             TeamRepository teamRepository,
             TeamMemberUpdateService updateService,
-            TeamMemberDeleteService deleteService) {
+            TeamMemberDeleteService deleteService, EntityAccessControlService<Team> accessControl) {
         this.readService = readService;
         this.repository = repository;
         this.teamRepository = teamRepository;
         this.updateService = updateService;
         this.deleteService = deleteService;
+        this.accessControl = accessControl;
     }
 
     @GetMapping
     @Transactional
     public ResponseEntity<PageResponse<TeamMemberResponse>> get(
             @PathVariable Integer teamId,
-            @RequestParam Map<String, String> params) throws ResourceNotFoundException {
+            @RequestParam Map<String, String> params) throws ResourceNotFoundException, AccessDeniedException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamMemberAction.READ);
         Page<TeamMemberWithProfileResult> membersPage = this.readService
                 .readPagedByTeam(teamId, this.createPageable(params));
 
@@ -59,7 +66,9 @@ public class MemberApiController extends BaseApiController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<TeamMemberResponse> getParticular(@PathVariable Integer teamId, @PathVariable String userId)
-            throws ResourceNotFoundException {
+            throws ResourceNotFoundException, AccessDeniedException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamMemberAction.READ);
         TeamMemberWithProfileResult member = this.readService
                 .readParticularByUserId(teamId, userId)
                 .orElseThrow(ResourceNotFoundException::new);
@@ -75,6 +84,7 @@ public class MemberApiController extends BaseApiController {
             )
             throws Exception {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamMemberAction.UPDATE);
         TeamMember member = this.repository
                 .findFirstByTeamAndUserId(team, userId)
                 .orElseThrow(ResourceNotFoundException::new);
@@ -86,6 +96,8 @@ public class MemberApiController extends BaseApiController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> delete(@PathVariable Integer teamId, @PathVariable String userId) throws Exception {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+        this.accessControl.ensureThatUserHasAccess(team, TeamMemberAction.UPDATE);
         this.deleteService.deleteByTeamAndUserId(teamId, userId);
         return ResponseEntity.noContent().build();
     }

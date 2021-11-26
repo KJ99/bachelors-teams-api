@@ -9,11 +9,12 @@ import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.delete.TeamMemberDeleteServiceImpl;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class TeamMemberDeleteServiceTests extends BaseTest {
+public class TeamMemberDeleteServiceTests extends BaseUnitTest {
     @Autowired
     private TeamMemberDeleteServiceImpl service;
     @Autowired

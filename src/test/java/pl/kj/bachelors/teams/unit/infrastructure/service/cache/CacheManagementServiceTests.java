@@ -9,13 +9,14 @@ import pl.kj.bachelors.teams.domain.model.entity.CacheItem;
 import pl.kj.bachelors.teams.domain.model.extension.CacheTag;
 import pl.kj.bachelors.teams.infrastructure.repository.CacheItemRepository;
 import pl.kj.bachelors.teams.infrastructure.service.cache.CacheManagementService;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CacheManagementServiceTests extends BaseTest {
+public class CacheManagementServiceTests extends BaseUnitTest {
     @Autowired
     private CacheManagementService service;
     @Autowired

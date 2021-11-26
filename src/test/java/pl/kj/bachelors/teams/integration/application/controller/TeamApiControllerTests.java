@@ -221,7 +221,7 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
 
     @Test
     public void testJoin_NoContent() throws Exception {
-        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-2"));
         JoinTeamRequest request = new JoinTeamRequest();
         request.setInviteToken("valid-token-1");
         String requestBody = this.serialize(request);
@@ -250,18 +250,35 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
     }
 
     @Test
-    public void testJoin_AccessDenied() throws Exception {
+    public void testJoin_BadRequest_TokenExpired() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
         JoinTeamRequest request = new JoinTeamRequest();
         request.setInviteToken("expired-token-1");
         String requestBody = this.serialize(request);
 
-        this.mockMvc.perform(
+        MvcResult result = this.mockMvc.perform(
                 post("/v1/teams/join")
                         .contentType("application/json")
                         .content(requestBody)
                         .header("Authorization", auth)
-        ).andExpect(status().isForbidden());
+        ).andExpect(status().isBadRequest()).andReturn();
+        assertThat(result.getResponse().getContentAsString()).contains("TM.101");
+    }
+
+    @Test
+    public void testJoin_BadRequest_AlreadyMember() throws Exception {
+        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
+        JoinTeamRequest request = new JoinTeamRequest();
+        request.setInviteToken("valid-token-1");
+        String requestBody = this.serialize(request);
+
+        MvcResult result = this.mockMvc.perform(
+                post("/v1/teams/join")
+                        .contentType("application/json")
+                        .content(requestBody)
+                        .header("Authorization", auth)
+        ).andExpect(status().isBadRequest()).andReturn();
+        assertThat(result.getResponse().getContentAsString()).contains("TM.102");
     }
 
     @Test

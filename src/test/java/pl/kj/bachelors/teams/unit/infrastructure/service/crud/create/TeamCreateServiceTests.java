@@ -14,6 +14,7 @@ import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.service.crud.create.TeamCreateServiceImpl;
 import pl.kj.bachelors.teams.infrastructure.user.RequestHandler;
+import pl.kj.bachelors.teams.unit.BaseUnitTest;
 
 import java.util.Optional;
 
@@ -22,26 +23,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-public class TeamCreateServiceTests extends BaseTest {
+public class TeamCreateServiceTests extends BaseUnitTest {
     @Autowired
     private TeamCreateServiceImpl service;
     @Autowired
     private TeamMemberRepository memberRepository;
-    private final String uid = "uid-2";
 
-    MockedStatic<RequestHandler> userHandlerMock;
 
-    @BeforeEach
-    public void setUp()
-    {
-        this.userHandlerMock = Mockito.mockStatic(RequestHandler.class);
-
-        when(RequestHandler.getCurrentUserId()).thenReturn(Optional.of(this.uid));
-    }
-
-    @AfterEach
-    public void tearDown() {
-        this.userHandlerMock.close();
+    @Override
+    protected String getCurrentUserId() {
+        return "uid-2";
     }
 
     @Test
@@ -58,7 +49,7 @@ public class TeamCreateServiceTests extends BaseTest {
         assertThat(team.getPicture()).isNotNull();
         assertThat(team.getPicture().getId()).isEqualTo(model.getPictureId());
 
-        Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, uid);
+        Optional<TeamMember> member = this.memberRepository.findFirstByTeamAndUserId(team, this.getCurrentUserId());
         assertThat(member).isPresent();
         assertThat(member.get().getRoles()).hasSize(2);
     }
