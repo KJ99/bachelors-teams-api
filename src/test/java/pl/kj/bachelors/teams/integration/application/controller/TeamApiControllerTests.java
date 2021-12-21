@@ -263,7 +263,7 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                         .content(requestBody)
                         .header("Authorization", auth)
         ).andExpect(status().isBadRequest()).andReturn();
-        assertThat(result.getResponse().getContentAsString()).contains("TM.101");
+        assertThat(result.getResponse().getContentAsString()).contains("TM.004");
     }
 
     @Test
@@ -279,7 +279,7 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                         .content(requestBody)
                         .header("Authorization", auth)
         ).andExpect(status().isBadRequest()).andReturn();
-        assertThat(result.getResponse().getContentAsString()).contains("TM.102");
+        assertThat(result.getResponse().getContentAsString()).contains("TM.005");
     }
 
     @Test
