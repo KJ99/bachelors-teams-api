@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.kj.bachelors.teams.domain.config.ApiConfig;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.exception.ApiError;
 import pl.kj.bachelors.teams.domain.model.extension.Role;
@@ -19,10 +20,12 @@ import java.util.List;
 public class TeamMemberUpdateServiceImpl
     extends BaseEntityUpdateService<TeamMember, Integer, TeamMemberUpdateModel, TeamMemberRepository>
     implements TeamMemberUpdateService {
+    private final ApiConfig apiConfig;
 
     @Autowired
-    protected TeamMemberUpdateServiceImpl(TeamMemberRepository repository, ValidationService validationService, ModelMapper modelMapper, ObjectMapper objectMapper) {
+    protected TeamMemberUpdateServiceImpl(TeamMemberRepository repository, ValidationService validationService, ModelMapper modelMapper, ObjectMapper objectMapper, ApiConfig apiConfig) {
         super(repository, validationService, modelMapper, objectMapper);
+        this.apiConfig = apiConfig;
     }
 
     @Override
@@ -31,7 +34,7 @@ public class TeamMemberUpdateServiceImpl
         boolean hasOwner = updateModel.getRoles().stream().anyMatch(role -> role.equals(Role.OWNER));
         if(hadOwner && !hasOwner) {
             var ex = new AggregatedApiError();
-            ex.setErrors(List.of(new ApiError("", "TM.011", "roles")));
+            ex.setErrors(List.of(new ApiError(this.apiConfig.getErrors().get("TM.003"), "TM.003", "roles")));
             throw ex;
         }
     }

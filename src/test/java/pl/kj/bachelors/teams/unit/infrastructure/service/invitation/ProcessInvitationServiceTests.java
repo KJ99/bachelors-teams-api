@@ -94,7 +94,7 @@ public class ProcessInvitationServiceTests extends BaseUnitTest {
 
         assertThat(thrown).isInstanceOf(AggregatedApiError.class);
         AggregatedApiError ex = (AggregatedApiError) thrown;
-        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.101")));
+        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.004")));
     }
 
     @Test
@@ -106,6 +106,6 @@ public class ProcessInvitationServiceTests extends BaseUnitTest {
 
         assertThat(thrown).isInstanceOf(AggregatedApiError.class);
         AggregatedApiError ex = (AggregatedApiError) thrown;
-        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.102")));
+        assertThat(ex.getErrors().stream().anyMatch(apiError -> apiError.getCode().equals("TM.005")));
     }
 }

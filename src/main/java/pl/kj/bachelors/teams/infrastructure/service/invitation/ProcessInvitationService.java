@@ -3,15 +3,14 @@ package pl.kj.bachelors.teams.infrastructure.service.invitation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.kj.bachelors.teams.domain.config.ApiConfig;
 import pl.kj.bachelors.teams.domain.exception.AccessDeniedException;
 import pl.kj.bachelors.teams.domain.exception.AggregatedApiError;
 import pl.kj.bachelors.teams.domain.exception.ApiError;
 import pl.kj.bachelors.teams.domain.exception.ResourceNotFoundException;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
-import pl.kj.bachelors.teams.domain.model.entity.Team;
 import pl.kj.bachelors.teams.domain.model.entity.TeamInvitation;
 import pl.kj.bachelors.teams.domain.model.entity.TeamMember;
-import pl.kj.bachelors.teams.domain.model.extension.action.TeamInvitationActions;
 import pl.kj.bachelors.teams.domain.service.crud.create.TeamMemberCreateService;
 import pl.kj.bachelors.teams.domain.service.invitation.InvitationProcessor;
 import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
@@ -24,14 +23,17 @@ import java.util.List;
 public class ProcessInvitationService implements InvitationProcessor {
     private final TeamInvitationRepository invitationRepository;
     private final TeamMemberCreateService memberCreateService;
+    private final ApiConfig apiConfig;
 
     @Autowired
     public ProcessInvitationService(
             TeamInvitationRepository invitationRepository,
             TeamMemberCreateService memberCreateService,
-            EntityAccessControlService<TeamInvitation> accessControl) {
+            EntityAccessControlService<TeamInvitation> accessControl,
+            ApiConfig apiConfig) {
         this.invitationRepository = invitationRepository;
         this.memberCreateService = memberCreateService;
+        this.apiConfig = apiConfig;
     }
 
     @Override
@@ -54,12 +56,12 @@ public class ProcessInvitationService implements InvitationProcessor {
                 .orElseThrow(ResourceNotFoundException::new);
         if(invitation.getExpiresAt().getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
             AggregatedApiError ex = new AggregatedApiError();
-            ex.setErrors(List.of(new ApiError("", "TM.101", null)));
+            ex.setErrors(List.of(new ApiError("", "TM.004", null)));
             throw ex;
         }
         if(invitation.getTeam().getMembers().stream().anyMatch(member -> member.getUserId().equals(uid))) {
             AggregatedApiError ex = new AggregatedApiError();
-            ex.setErrors(List.of(new ApiError("", "TM.102", null)));
+            ex.setErrors(List.of(new ApiError(this.apiConfig.getErrors().get("TM.005"), "TM.005", null)));
             throw ex;
         }
 

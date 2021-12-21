@@ -68,19 +68,6 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
     }
 
     @Test
-    public void testPost_Forbidden() throws Exception {
-        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
-        String requestBody = this.serialize(this.getCorrectCreateModel());
-
-        this.mockMvc.perform(
-                post("/v1/teams")
-                        .contentType("application/json")
-                        .content(requestBody.getBytes(StandardCharsets.UTF_8))
-                        .header("Authorization", auth)
-        ).andExpect(status().isForbidden());
-    }
-
-    @Test
     public void testPatch_NoContent() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
         String requestBody = this.serialize(new PatchOperation[] {
@@ -127,19 +114,6 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
     }
 
     @Test
-    public void testPatch_Forbidden() throws Exception {
-        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
-        String requestBody = this.serialize(new PatchOperation[] {});
-
-        this.mockMvc.perform(
-                patch("/v1/teams/1")
-                        .contentType("application/json")
-                        .content(requestBody.getBytes(StandardCharsets.UTF_8))
-                        .header("Authorization", auth)
-        ).andExpect(status().isForbidden());
-    }
-
-    @Test
     public void testPatch_NotFound() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
         String requestBody = this.serialize(new PatchOperation[] {
@@ -171,16 +145,6 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGet_Forbidden() throws Exception {
-        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
-
-        this.mockMvc.perform(
-                get("/v1/teams")
-                        .header("Authorization", auth)
-        ).andExpect(status().isForbidden());
-    }
-
-    @Test
     public void testGetParticular_Ok() throws Exception {
         String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateValidAccessToken("uid-1"));
         MvcResult result = this.mockMvc.perform(
@@ -198,16 +162,6 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
         this.mockMvc.perform(
                 get("/v1/teams/1")
         ).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void testGetParticular_Forbidden() throws Exception {
-        String auth = String.format("%s %s", this.jwtConfig.getType(), this.generateExpiredAccessToken("uid-1"));
-
-        this.mockMvc.perform(
-                get("/v1/teams/1")
-                        .header("Authorization", auth)
-        ).andExpect(status().isForbidden());
     }
 
     @Test
@@ -263,7 +217,7 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                         .content(requestBody)
                         .header("Authorization", auth)
         ).andExpect(status().isBadRequest()).andReturn();
-        assertThat(result.getResponse().getContentAsString()).contains("TM.101");
+        assertThat(result.getResponse().getContentAsString()).contains("TM.004");
     }
 
     @Test
@@ -279,7 +233,7 @@ public class TeamApiControllerTests extends BaseIntegrationTest {
                         .content(requestBody)
                         .header("Authorization", auth)
         ).andExpect(status().isBadRequest()).andReturn();
-        assertThat(result.getResponse().getContentAsString()).contains("TM.102");
+        assertThat(result.getResponse().getContentAsString()).contains("TM.005");
     }
 
     @Test
