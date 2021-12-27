@@ -7,6 +7,7 @@ public class TeamResponse {
     private String name;
     private String pictureUrl;
     private TeamSettingsResponse settings;
+    private Integer pictureId;
     private Collection<String> roles;
 
     public int getId() {
@@ -47,5 +48,13 @@ public class TeamResponse {
 
     public void setRoles(Collection<String> roles) {
         this.roles = roles;
+    }
+
+    public Integer getPictureId() {
+        return pictureId;
+    }
+
+    public void setPictureId(Integer pictureId) {
+        this.pictureId = pictureId;
     }
 }

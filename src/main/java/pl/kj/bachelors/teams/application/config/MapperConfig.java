@@ -20,6 +20,8 @@ import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
+import pl.kj.bachelors.teams.domain.model.embeddable.TeamSettings;
+import pl.kj.bachelors.teams.domain.model.extension.AppTheme;
 import pl.kj.bachelors.teams.domain.model.extension.Role;
 import pl.kj.bachelors.teams.domain.model.create.TeamCreateModel;
 import pl.kj.bachelors.teams.domain.model.create.TeamMemberCreateModel;
@@ -82,10 +84,21 @@ public class MapperConfig {
             protected void configure() {
                 using(ctx -> {
                    TeamCreateModel src = (TeamCreateModel) ctx.getSource();
-                    UploadedFile file = new UploadedFile();
-                    file.setId(src.getPictureId());
-                    return src.getPictureId() != null ? file : null;
-                });
+                   UploadedFile file = null;
+                   if(src.getPictureId() != null) {
+                       file = new UploadedFile();
+                       file.setId(src.getPictureId());
+                   }
+                   return file;
+                }).map(source, destination.getPicture());
+
+                using(ctx -> {
+                    TeamCreateModel src = (TeamCreateModel) ctx.getSource();
+                    TeamSettings settings = new TeamSettings();
+                    settings.setTheme(AppTheme.valueOf(src.getTheme()));
+
+                    return settings;
+                }).map(source, destination.getSettings());
             }
         });
 
@@ -105,9 +118,12 @@ public class MapperConfig {
                 skip(destination.getId());
                 using(ctx -> {
                     TeamUpdateModel src = (TeamUpdateModel) ctx.getSource();
-                    UploadedFile file = new UploadedFile();
-                    file.setId(src.getPictureId());
-                    return src.getPictureId() != null ? file : null;
+                    UploadedFile file = null;
+                    if(src.getPictureId() != null) {
+                        file = new UploadedFile();
+                        file.setId(src.getPictureId());
+                    }
+                    return file;
                 }).map(source, destination.getPicture());
             }
         });
@@ -129,6 +145,11 @@ public class MapperConfig {
                             .toUriString()
                             : null;
                 }).map(source, destination.getPictureUrl());
+
+                using(ctx -> {
+                    Team src = (Team) ctx.getSource();
+                    return src.getPicture() != null ? src.getPicture().getId() : null;
+                }).map(source, destination.getPictureId());
             }
         });
 
