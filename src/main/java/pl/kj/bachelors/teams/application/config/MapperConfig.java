@@ -222,15 +222,6 @@ public class MapperConfig {
             }
         });
 
-        mapper.addMappings(new PropertyMap<Page<?>, PageMetadata>() {
-            @Override
-            protected void configure() {
-                map().setPage(source.getNumber());
-                map().setPageSize((int) source.getTotalElements());
-                map().setTotalPages(source.getTotalPages());
-            }
-        });
-
         mapper.addMappings(new PropertyMap<TeamMemberCreateModel, TeamMember>() {
             @Override
             protected void configure() {

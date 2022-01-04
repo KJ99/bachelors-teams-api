@@ -159,9 +159,7 @@ public class TeamApiController extends BaseApiController{
         PagingQuery query = this.parseQueryParams(params, PagingQuery.class);
         Pageable pageable = PageRequest.of(query.getPage(), query.getPageSize());
         Page<TeamWithParticipationResult> page = this.readService.readPaged(pageable);
-        PageResponse<TeamResponse> response = new PageResponse<>();
-        response.setMetadata(this.map(page, PageMetadata.class));
-        response.setData(this.mapCollection(page.getContent(), TeamResponse.class));
+        PageResponse<TeamResponse> response = this.createPageResponse(page, TeamResponse.class);
 
         return ResponseEntity.ok(response);
     }
