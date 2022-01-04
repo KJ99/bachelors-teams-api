@@ -17,6 +17,7 @@ import pl.kj.bachelors.teams.application.dto.response.member.TeamRoleResponse;
 import pl.kj.bachelors.teams.application.dto.response.member.TeamMemberResponse;
 import pl.kj.bachelors.teams.application.dto.response.page.PageMetadata;
 import pl.kj.bachelors.teams.application.dto.response.team.TeamResponse;
+import pl.kj.bachelors.teams.application.dto.response.team.TeamSimpleResponse;
 import pl.kj.bachelors.teams.application.model.HealthCheckResult;
 import pl.kj.bachelors.teams.application.model.SingleCheckResult;
 import pl.kj.bachelors.teams.domain.config.ApiConfig;
@@ -125,6 +126,26 @@ public class MapperConfig {
                     }
                     return file;
                 }).map(source, destination.getPicture());
+            }
+        });
+
+        mapper.addMappings(new PropertyMap<Team, TeamSimpleResponse>() {
+            @Override
+            protected void configure() {
+                using(ctx -> {
+                    Team src = (Team) ctx.getSource();
+                    UriComponentsBuilder uriBuilder = UriComponentsBuilder
+                            .newInstance()
+                            .host(config.getHost())
+                            .scheme("https");
+
+                    return src.getPicture() != null
+                            ? uriBuilder
+                            .path("/v1/resources/{id}/download")
+                            .buildAndExpand(src.getPicture().getId())
+                            .toUriString()
+                            : null;
+                }).map(source, destination.getPictureUrl());
             }
         });
 
