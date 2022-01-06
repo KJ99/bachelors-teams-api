@@ -37,6 +37,8 @@ import pl.kj.bachelors.teams.domain.service.security.EntityAccessControlService;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -73,7 +75,9 @@ public class MemberApiController extends BaseApiController {
                     responseCode = "200",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = TeamMemberPageExample.class)
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = TeamMemberResponse.class)
+                            )
                     )
             ),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
@@ -84,15 +88,14 @@ public class MemberApiController extends BaseApiController {
             @Parameter(name = "params", schema = @Schema(implementation = PagingQuery.class))
     })
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<PageResponse<TeamMemberResponse>> get(
-            @PathVariable Integer teamId,
-            @RequestParam Map<String, String> params) throws ResourceNotFoundException, AccessDeniedException {
+    public ResponseEntity<Collection<TeamMemberResponse>> get(
+            @PathVariable Integer teamId) throws ResourceNotFoundException, AccessDeniedException {
         Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
         this.accessControl.ensureThatUserHasAccess(team, TeamMemberAction.READ);
-        Page<TeamMemberWithProfileResult> membersPage = this.readService
-                .readPagedByTeam(teamId, this.createPageable(params));
+        List<TeamMemberWithProfileResult> members = this.readService
+                .readByTeam(teamId);
 
-        return ResponseEntity.ok(this.createPageResponse(membersPage, TeamMemberResponse.class));
+        return ResponseEntity.ok(this.mapCollection(members, TeamMemberResponse.class));
     }
 
     @GetMapping("/{userId}")

@@ -14,7 +14,9 @@ import pl.kj.bachelors.teams.domain.service.user.ProfileProvider;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamMemberRepository;
 import pl.kj.bachelors.teams.infrastructure.repository.TeamRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamMemberReadServiceImpl
@@ -55,6 +57,15 @@ public class TeamMemberReadServiceImpl
         Page<TeamMember> membersPage = this.repository.findByTeam(team, query);
 
         return membersPage.map(this::createResult);
+    }
+
+    @Override
+    public List<TeamMemberWithProfileResult> readByTeam(Integer teamId) throws ResourceNotFoundException {
+        Team team = this.teamRepository.findById(teamId).orElseThrow(ResourceNotFoundException::new);
+
+        List<TeamMember> members = this.repository.findByTeam(team);
+
+        return members.stream().map(this::createResult).collect(Collectors.toList());
     }
 
     @Override
